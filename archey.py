@@ -5,16 +5,16 @@ from subprocess import Popen, PIPE
 
 # Define colors.
 # Uncomment whatever color scheme you prefer.
-clear = "\x1b[0m" # clear [Do NOT uncomment]
+clear = "\x1b[0m" # clear [Do NOT comment out]
 
 # color = "\x1b[1;30m" # black
 # color2 = "\x1b[0;30m" # black
 
-color = "\x1b[1;31m" # red 
+# color = "\x1b[1;31m" # red 
 # color2 = "\x1b[0;30m" # red
 
 # color = "\x1b[1;32m" # green
-color2 = "\x1b[0;32m" # green
+# color2 = "\x1b[0;32m" # green
 
 # color = "\x1b[1;33m" # yellow
 # color2 = "\x1b[0;33m" # yellow
@@ -70,7 +70,7 @@ def battery_display():
 	battery = p2.communicate()[0].rstrip("\n")
 	output ('Battery', battery)
 
-# Define desktop environment.
+# Define desktop environment. 
 def de_display():
 	dict = {'gnome-session': 'GNOME',
 		'ksmserver': 'KDE',
@@ -101,34 +101,36 @@ def wm_display():
 		if key in processes: wm = dict[key]
         output ('WM', wm)
 
-# Define packages. [number of packages installed on system]
+# Define number of packages installed.
 def packages_display():
 	p1 = Popen(['pacman', '-Q'], stdout=PIPE)
 	p2 = Popen(['wc', '-l'], stdin=p1.stdout, stdout=PIPE)
 	packages = p2.communicate()[0].rstrip("\n")
 	output ('Packages', packages)
 
-# Define file system information.
+# Define root partition information. 
 def fs_display():
-	# Display root filesystem information. [Enabled by default]
+	# Display root filesystem information. 
 	p1 = Popen(['df', '-Th'], stdout=PIPE)
 	p2 = Popen(['grep', "/$"], stdin=p1.stdout, stdout=PIPE)
 	p3 = Popen(['awk', '{print $4" / "$3}'], stdin=p2.stdout, stdout=PIPE)
 	root = p3.communicate()[0].rstrip("\n")
 	output ('Root', root)
 
+# Define home partition information.
+def home_display():
 	# Display home filesystem information.
-	# Uncomment if you have a seperate home filesystem. [Disabled by default]
-	h1 = Popen(['df', '-Th'], stdout=PIPE)
-	h2 = Popen(['grep', "/home$"], stdin=h1.stdout, stdout=PIPE)
-	h3 = Popen(['awk', '{print $4" / "$3}'], stdin=h2.stdout, stdout=PIPE)
-	home = h3.communicate()[0].rstrip("\n")
+	p1 = Popen(['df', '-Th'], stdout=PIPE)
+	p2 = Popen(['grep', "/home$"], stdin=p1.stdout, stdout=PIPE)
+	p3 = Popen(['awk', '{print $4" / "$3}'], stdin=p2.stdout, stdout=PIPE)
+	home = p3.communicate()[0].rstrip("\n")
 	output ('Home', home)
 
 
 # Values to display.
-# Possible options: os, kernel, uptime, battery, de, wm, packages, fs.
-display = [ 'os', 'kernel', 'battery', 'uptime', 'de', 'wm', 'packages', 'fs' ]
+# Possible Options [Enabled by default]: os, kernel, uptime, de, wm, packages, fs
+# Possible Options [Disabled by default]: battery, home
+display = [ 'os', 'kernel', 'uptime', 'de', 'wm', 'packages', 'fs' ]
 
 # Run functions found in 'display' array.
 for x in display:
@@ -159,5 +161,5 @@ print """%s
 %s  ;####                 ####;   
 %s  ##'                     '##   
 %s #'                         `#  %s                          
-""" % (color, color, color, color, list[0], color, list[1], color, list[2], color, list[3], color, list[4], color, list[5], color, color2, color, list[6], color, color2, color, list[7], color, color2, list[8], color2, list[9], color2, list[10], color2, list[10], color2, list[10], color2, color2, color2, clear)
+""" % (color, color, color, color, list[0], color, list[1], color, list[2], color, list[3], color, list[4], color, list[5], color, color2, color, list[6], color, color2, color, list[7], color, color2, list[8], color2, list[9], color2, list[10], color2, list[11], color2, list[12], color2, color2, color2, clear)
 
