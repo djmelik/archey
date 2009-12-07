@@ -19,8 +19,8 @@ clear = "\x1b[0m" # clear [Do NOT comment out]
 # color = "\x1b[1;33m" # yellow
 # color2 = "\x1b[0;33m" # yellow
 
-# color = "\x1b[1;34m" # blue [Default]
-# color2 = "\x1b[0;34m" # blue [Default]
+color = "\x1b[1;34m" # blue [Default]
+color2 = "\x1b[0;34m" # blue [Default]
 
 # color = "\x1b[1;35m" # magenta
 # color2 = "\x1b[0;35m" # magenta
