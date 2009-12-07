@@ -39,6 +39,7 @@ blank = ['']*10
 p1 = Popen(['ps', '-A'], stdout=PIPE)
 p2 = Popen(["awk", '{print $4}'], stdin=p1.stdout, stdout=PIPE)
 processes = p2.communicate()[0].split("\n")
+p1 = p2 = None
 
 # Print coloured key with normal value.
 def output(key, value):
@@ -47,7 +48,9 @@ def output(key, value):
 
 # Define operating system.
 def os_display(): 
-	os = "Arch Linux"	
+	p1 = Popen(['uname', '-m'],stdout=PIPE)
+	arch = p1.communicate()[0].rstrip("\n")
+	os = "Arch Linux %s" % arch
 	output('OS', os)
 
 # Define kernel.
