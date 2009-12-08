@@ -68,7 +68,7 @@ def uptime_display():
 	day = int(fuptime)/86400
 	hour = (int(fuptime) / 3600) - (24 * (int(fuptime) / 86400))
 	minute = (int(fuptime) / 60) - (60 * (int(fuptime) / 3600))
-	minute2 = '%s'.zfill(2) % (minute)
+	minute2 = '%s'.zfill(3) % (minute)
 	uptime = '%s days, %s:%s' % (day, hour, minute2)
 	output ('Uptime', uptime)
 
