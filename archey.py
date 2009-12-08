@@ -34,6 +34,11 @@ color2 = '\x1b[0;34m' # blue [Default]
 # Define arrays containing values.
 list = []
 
+screen = 'yes' 
+
+def screenshot():
+	Popen(['scrot', '-cd5'])
+
 # Find running processes.
 p1 = Popen(['ps', '-A'], stdout=PIPE).communicate()[0].split('\n')
 processes = [process.split()[3] for process in p1 if process]
@@ -111,7 +116,7 @@ def fs_display(mount=''):
 	part = [line for line in p1.split('\n') if line][1]
 	part = part.split()[3]
 	if mount == '/': mount = '/root'
-	fs = mount.lstrip('/').title()
+	fs = mount.rpartition('/')[2].title()
    	output (fs, part)
 
 # Values to display.
@@ -153,3 +158,7 @@ print """%s
 %s  ##'                     '##   
 %s #'                         `#  %s                          
 """ % (color, color, color, color, list[0], color, list[1], color, list[2], color, list[3], color, list[4], color, list[5], color, color2, color, list[6], color, color2, color, list[7], color, color2, list[8], color2, list[9], color2, list[10], color2, list[11], color2, list[12], color2, color2, color2, clear)
+
+if screen == 'yes': 
+	screenshot()
+	exit
