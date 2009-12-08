@@ -124,7 +124,7 @@ def fs_display(mount=''):
 # Values to display.
 ## Possible Options [Enabled by default]: 'os', 'kernel', 'uptime', 'de', 'wm', 'packages', 'fs:/'
 ## Possible Options [Disabled by default]: 'battery', 'fs:/MOUNT/POINT'
-display = [ 'os', 'kernel', 'uptime', 'de', 'wm', 'packages', 'fs:/', 'fs:/home' ]
+display = [ 'os', 'kernel', 'uptime', 'de', 'wm', 'packages', 'fs:/' ]
 
 # Run functions found in 'display' array.
 for x in display:
