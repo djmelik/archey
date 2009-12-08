@@ -65,13 +65,11 @@ def kernel_display():
 
 def uptime_display():
 	fuptime = open('/proc/uptime').read().split(' ')[0].split('.')[0]
-	h = int(fuptime)/3600
-	m = int(fuptime)/60
 	day = int(fuptime)/86400
-	hour = int(h)-(24*int(day))
-	minute = int(m)-(60*int(h))
+	hour = (int(fuptime) / 3600) - (24 * (int(fuptime) / 86400))
+	minute = (int(fuptime) / 60) - (60 * (int(fuptime) / 3600))
 	minute2 = '%s'.zfill(2) % (minute)
-	uptime = '%s, %s:%s' % (day, hour, minute2)
+	uptime = '%s days, %s:%s' % (day, hour, minute2)
 	output ('Uptime', uptime)
 
 # Define battery. [Requires: acpi]
