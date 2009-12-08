@@ -33,7 +33,6 @@ color2 = '\x1b[0;34m' # blue [Default]
 
 # Define arrays containing values.
 list = []
-blank = ['']*10
 
 # Find running processes.
 p1 = Popen(['ps', '-A'], stdout=PIPE).communicate()[0].split('\n')
@@ -106,39 +105,32 @@ def packages_display():
 	packages = p2.communicate()[0].rstrip('\n')
 	output ('Packages', packages)
 
-# Define root file system information. 
-def rootfs_display():
-	p1 = Popen(['df', '-Th'], stdout=PIPE).communicate()[0]
-	drives = [line for line in p1.split('\n') if line]
-	for line in drives:
-		if line.endswith('/'):
-			root = line.split()[3]
-			break
-	output ('Root', root)
-
-# Define home file system information.
-def homefs_display():
-	p1 = Popen(['df', '-Th'], stdout=PIPE).communicate()[0]
-	drives = [line for line in p1.split('\n') if line]
-	for line in drives:
-		if line.endswith('/home'):
-			home = line.split()[3]
-			break
-	output ('home', home)
+# Define file system information. 
+def fs_display(mount=''):
+	p1 = Popen(['df', '-Th',  mount], stdout=PIPE).communicate()[0]
+	part = [line for line in p1.split('\n') if line][1]
+	part = part.split()[3]
+	if mount == '/': mount = '/root'
+	fs = mount.lstrip('/').title()
+   	output (fs, part)
 
 # Values to display.
-# Possible Options [Enabled by default]: os, kernel, uptime, de, wm, packages, rootfs
-# Possible Options [Disabled by default]: battery, homefs
-display = [ 'os', 'kernel', 'uptime', 'de', 'wm', 'packages', 'rootfs']
+## Possible Options [Enabled by default]: 'os', 'kernel', 'uptime', 'de', 'wm', 'packages', 'fs:/'
+## Possible Options [Disabled by default]: 'battery', 'fs:/MOUNT/POINT'
+display = [ 'os', 'kernel', 'uptime', 'de', 'wm', 'packages', 'fs:/', 'fs:/home' ]
 
 # Run functions found in 'display' array.
 for x in display:
-	funcname=x+'_display'
+	call = [arg for arg in x.split(':') if arg]
+	funcname=call[0] + "_display"
 	func=locals()[funcname]
-	func()
+	if len(call) > 1:
+		func(arg)
+	else:
+		func()
 
 # Fill 'list' array with with blank keys. [Do NOT remove]
-list.extend(blank)
+list.extend(['']*(13 - len(display)))
 
 # Result.
 print """%s
