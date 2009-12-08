@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 # Import libraries.
+import subprocess
 from subprocess import Popen, PIPE
 
 # Define colors.
@@ -34,10 +35,11 @@ color2 = '\x1b[0;34m' # blue [Default]
 # Define arrays containing values.
 list = []
 
-screen = 'yes' 
-
+# Screenshot
+# Set to 'True' to enable screenshot.
+screen = 'False'
 def screenshot():
-	Popen(['scrot', '-cd5'])
+	subprocess.check_call(["scrot", "-cd5"])
 
 # Find running processes.
 p1 = Popen(['ps', '-A'], stdout=PIPE).communicate()[0].split('\n')
@@ -159,6 +161,7 @@ print """%s
 %s #'                         `#  %s                          
 """ % (color, color, color, color, list[0], color, list[1], color, list[2], color, list[3], color, list[4], color, list[5], color, color2, color, list[6], color, color2, color, list[7], color, color2, list[8], color2, list[9], color2, list[10], color2, list[11], color2, list[12], color2, color2, color2, clear)
 
-if screen == 'yes': 
+if screen == 'True': 
 	screenshot()
-	exit
+else:
+	quit
