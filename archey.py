@@ -2,6 +2,7 @@
 
 # Import libraries.
 import subprocess
+import datetime
 from subprocess import Popen, PIPE
 
 # Define colors.
@@ -62,10 +63,15 @@ def kernel_display():
 	kernel = Popen(['uname', '-r'], stdout=PIPE).communicate()[0].rstrip('\n')
 	output ('Kernel', kernel)
 
-# Define uptime.
 def uptime_display():
-	p1 = Popen(['uptime'], stdout=PIPE).communicate()[0].lstrip().split(' ')
-	uptime = ' '.join(p1[2:(p1.index(''))]).rstrip(',')
+	fuptime = open('/proc/uptime').read().split(' ')[0].split('.')[0]
+	h = int(fuptime)/3600
+	m = int(fuptime)/60
+	day = int(fuptime)/86400
+	hour = int(h)-(24*int(day))
+	minute = int(m)-(60*int(h))
+	minute2 = '%s'.zfill(2) % (minute)
+	uptime = '%s, %s:%s' % (day, hour, minute2)
 	output ('Uptime', uptime)
 
 # Define battery. [Requires: acpi]
