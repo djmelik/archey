@@ -2,10 +2,9 @@
 
 # Import libraries.
 import subprocess
-import datetime
 from subprocess import Popen, PIPE
 
-# Define colors.
+###### Color Scheme #######
 # Uncomment whatever color scheme you prefer.
 clear = '\x1b[0m' # clear [Do NOT comment out]
 
@@ -33,10 +32,15 @@ color2 = '\x1b[0;34m' # blue [Default]
 # color = '\x1b[1;37m' # white
 # color2 = '\x1b[0;37m' # white
 
-# Define arrays containing values.
+###### Values to display #######
+# Possible Options [Enabled by default]: os, kernel, uptime, de, wm, packages, fs:/
+# Possible Options [Disabled by default]: battery, fs:/MOUNT/POINT
+display = [ 'os', 'kernel', 'uptime', 'de', 'wm', 'packages', 'fs:/' ]
+
+# Array containing values.
 list = []
 
-# Screenshot
+###### Screenshot #######
 # Set to 'True' to enable screenshot.
 screen = 'False'
 def screenshot():
@@ -52,37 +56,40 @@ def output(key, value):
 	output = '%s%s:%s %s' % (color, key, clear, value)
 	list.append(output)
 
-# Define operating system.
+# Operating System Function
 def os_display(): 
 	arch = Popen(['uname', '-m'], stdout=PIPE).communicate()[0].rstrip('\n')
 	os = 'Arch Linux %s' % (arch)
 	output('OS', os)
 
-# Define kernel.
+# Kernel Function
 def kernel_display():
 	kernel = Popen(['uname', '-r'], stdout=PIPE).communicate()[0].rstrip('\n')
 	output ('Kernel', kernel)
 
+# Uptime Function
 def uptime_display():
-	fuptime = int(open('/proc/uptime').read().split(' ')[0].split('.')[0])
+	fuptime = int(open('/proc/uptime').read().split('.')[0])
 	day = int(fuptime / 86400)
 	fuptime = fuptime % 86400
 	hour = int(fuptime / 3600)
 	fuptime = fuptime % 3600
 	minute = int(fuptime / 60)
 	uptime = ''
-	if day > 0:
+	if day == 1:
+		uptime += '% day, ' % day
+	if day > 1:
 		uptime += '%d days, ' % day
-	uptime += '%d:%2d' % (hour, minute)
+	uptime += '%d:%02d' % (hour, minute)
 	output('Uptime', uptime)
 
-# Define battery. [Requires: acpi]
+# Battery Function [Requires: acpi]
 def battery_display(): 
 	p1 = Popen(['acpi'], stdout=PIPE).communicate()[0].lstrip()
 	battery = p1.split(' ')[3].rstrip('\n')
 	output ('Battery', battery)
 
-# Define desktop environment. 
+# Desktop Environment Function 
 def de_display():
 	dict = {'gnome-session': 'GNOME',
 		'ksmserver': 'KDE',
@@ -92,7 +99,7 @@ def de_display():
 		if key in processes: de = dict[key]
 	output ('DE', de)
 
-# Define window manager.
+# Window Manager Function
 def wm_display():
         dict = {'awesome': 'Awesome',
 		'beryl': 'Beryl',
@@ -113,14 +120,14 @@ def wm_display():
 		if key in processes: wm = dict[key]
         output ('WM', wm)
 
-# Define number of packages installed.
+# Packages Function
 def packages_display():
 	p1 = Popen(['pacman', '-Q'], stdout=PIPE)
 	p2 = Popen(['wc', '-l'], stdin=p1.stdout, stdout=PIPE)
 	packages = p2.communicate()[0].rstrip('\n')
 	output ('Packages', packages)
 
-# Define file system information. 
+# File System Function
 def fs_display(mount=''):
 	p1 = Popen(['df', '-Th',  mount], stdout=PIPE).communicate()[0]
 	part = [line for line in p1.split('\n') if line][1]
@@ -128,11 +135,6 @@ def fs_display(mount=''):
 	if mount == '/': mount = '/root'
 	fs = mount.rpartition('/')[2].title()
    	output (fs, part)
-
-# Values to display.
-## Possible Options [Enabled by default]: 'os', 'kernel', 'uptime', 'de', 'wm', 'packages', 'fs:/'
-## Possible Options [Disabled by default]: 'battery', 'fs:/MOUNT/POINT'
-display = [ 'os', 'kernel', 'uptime', 'de', 'wm', 'packages', 'fs:/' ]
 
 # Run functions found in 'display' array.
 for x in display:
@@ -144,10 +146,10 @@ for x in display:
 	else:
 		func()
 
-# Fill 'list' array with with blank keys. [Do NOT remove]
+# Fill the rest of array 'list' with blank values. [Do not remove]
 list.extend(['']*(13 - len(display)))
 
-# Result.
+###### Result #######
 print """%s
 %s               +                
 %s               #                
@@ -169,7 +171,5 @@ print """%s
 %s #'                         `#  %s                          
 """ % (color, color, color, color, list[0], color, list[1], color, list[2], color, list[3], color, list[4], color, list[5], color, color2, color, list[6], color, color2, color, list[7], color, color2, list[8], color2, list[9], color2, list[10], color2, list[11], color2, list[12], color2, color2, color2, clear)
 
-if screen == 'True': 
-	screenshot()
-else:
-	quit
+# Take screenshot if it is enabled.
+if screen == 'True': screenshot()
