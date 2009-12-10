@@ -44,7 +44,7 @@ list = []
 # Set to 'True' to enable screenshot.
 screen = 'False'
 def screenshot():
-	subprocess.check_call(["scrot", "-cd5"])
+	subprocess.check_call(["scrot", "-cd5"])		
 
 # Find running processes.
 p1 = Popen(['ps', '-A'], stdout=PIPE).communicate()[0].split('\n')
@@ -104,6 +104,7 @@ def wm_display():
         dict = {'awesome': 'Awesome',
 		'beryl': 'Beryl',
 		'blackbox': 'Blackbox',
+		'compiz': 'Compiz',
 		'dwm': 'DWM',
 		'enlightenment': 'Enlightenment',
                 'fluxbox': 'Fluxbox',
@@ -168,8 +169,10 @@ print """%s
 %s   ######'           '######    %s
 %s  ;####                 ####;   
 %s  ##'                     '##   
-%s #'                         `#  %s                          
-""" % (color, color, color, color, list[0], color, list[1], color, list[2], color, list[3], color, list[4], color, list[5], color, color2, color, list[6], color, color2, color, list[7], color, color2, list[8], color2, list[9], color2, list[10], color2, list[11], color2, list[12], color2, color2, color2, clear)
+%s #'                         `#  """ % (color, color, color, color, list[0], color, list[1], color, list[2], color, list[3], color, list[4], color, list[5], color, color2, color, list[6], color, color2, color, list[7], color, color2, list[8], color2, list[9], color2, list[10], color2, list[11], color2, list[12], color2, color2, color2)
 
 # Take screenshot if it is enabled.
-if screen == 'True': screenshot()
+if screen == 'True':
+	print "%s" % (color)
+ 	screenshot()
+print "%s" % (clear)
