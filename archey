@@ -77,7 +77,7 @@ def uptime_display():
 	minute = int(fuptime / 60)
 	uptime = ''
 	if day == 1:
-		uptime += '% day, ' % day
+		uptime += '%d day, ' % day
 	if day > 1:
 		uptime += '%d days, ' % day
 	uptime += '%d:%02d' % (hour, minute)
