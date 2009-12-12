@@ -1,50 +1,35 @@
 #!/usr/bin/env python
 
-# Import libraries.
-import subprocess
+# Import libraries
+import subprocess, ConfigParser, optparse
 from subprocess import Popen, PIPE
+from optparse import OptionParser
 
-###### Color Scheme #######
-# Uncomment whatever color scheme you prefer.
-clear = '\x1b[0m' # clear [Do NOT comment out]
+# Import configuration
+config = ConfigParser.RawConfigParser()
+config.read('config')
 
-# color = '\x1b[1;30m' # black
-# color2 = '\x1b[0;30m' # black
-
-# color = '\x1b[1;31m' # red 
-# color2 = '\x1b[0;30m' # red
-
-# color = '\x1b[1;32m' # green
-# color2 = '\x1b[0;32m' # green
-
-# color = '\x1b[1;33m' # yellow
-# color2 = '\x1b[0;33m' # yellow
-
-color = '\x1b[1;34m' # blue [Default]
-color2 = '\x1b[0;34m' # blue [Default]
-
-# color = '\x1b[1;35m' # magenta
-# color2 = '\x1b[0;35m' # magenta
-
-# color = '\x1b[1;36m' # cyan
-# color2 = '\x1b[0;36m' # cyan
-
-# color = '\x1b[1;37m' # white
-# color2 = '\x1b[0;37m' # white
-
-###### Values to display #######
-# Possible Options [Enabled by default]: os, kernel, uptime, de, wm, packages, fs:/
-# Possible Options [Disabled by default]: battery, fs:/MOUNT/POINT
-display = [ 'os', 'kernel', 'uptime', 'de', 'wm', 'packages', 'fs:/' ]
-
-# Array containing values.
+# Array containing Values
 list = []
 
-###### Screenshot #######
-# Set to 'True' to enable screenshot.
-screen = 'False'
-def screenshot():
-	subprocess.check_call(["scrot", "-cd5"])		
+# Options
+if __name__=="__main__":
+	parser = OptionParser("usage: %prog [-c COLOR]")
+	parser.add_option("-c",
+		action="store", default='blue', type="choice", dest="color", choices=('black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white'), help="choose a color: black, red, green, yellow, blue, magenta, cyan, white [Default: blue]")
+	(options, args) = parser.parse_args()
+
+# Define colors
+colorscheme = "%s" % options.color
+colors = {'black': '0', 'red': '1', 'green': '2', 'yellow': '3', 'blue': '4', 'magenta': '5', 'cyan': '6', 'white': '7'}
+for key in colors.keys():
+	if key in colorscheme: colorcode = colors[key]				
+color = '\x1b[1;3%sm' % colorcode
+color2 = '\x1b[0;3%sm' % colorcode
+clear = '\x1b[0m'
+
+# Display
+display = ['os', 'kernel', 'uptime', 'de', 'wm', 'packages', 'fs:/' ]
 
 # Find running processes.
 p1 = Popen(['ps', '-A'], stdout=PIPE).communicate()[0].split('\n')
@@ -147,7 +132,7 @@ for x in display:
 	else:
 		func()
 
-# Fill the rest of array 'list' with blank values. [Do not remove]
+# Array containing values.
 list.extend(['']*(13 - len(display)))
 
 ###### Result #######
@@ -169,10 +154,4 @@ print """%s
 %s   ######'           '######    %s
 %s  ;####                 ####;   
 %s  ##'                     '##   
-%s #'                         `#  """ % (color, color, color, color, list[0], color, list[1], color, list[2], color, list[3], color, list[4], color, list[5], color, color2, color, list[6], color, color2, color, list[7], color, color2, list[8], color2, list[9], color2, list[10], color2, list[11], color2, list[12], color2, color2, color2)
-
-# Take screenshot if it is enabled.
-if screen == 'True':
-	print "%s" % (color)
- 	screenshot()
-print "%s" % (clear)
+%s #'                         `#  %s """ % (color, color, color, color, list[0], color, list[1], color, list[2], color, list[3], color, list[4], color, list[5], color, color2, color, list[6], color, color2, color, list[7], color, color2, list[8], color2, list[9], color2, list[10], color2, list[11], color2, list[12], color2, color2, color2, clear)
