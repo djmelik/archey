@@ -9,14 +9,16 @@ from optparse import OptionParser
 list = []
 
 # Options
-if __name__=="__main__":
-	parser = OptionParser("usage: %prog [-c COLOR]")
-	parser.add_option("-c",
-		action="store", default='blue', type="choice", dest="color", choices=('black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white'), help="choose a color: black, red, green, yellow, blue, magenta, cyan, white [Default: blue]")
+if __name__=='__main__':
+	parser = OptionParser('usage: %prog [-c COLOR]')
+	parser.add_option('-c',
+		action='store', default='blue', type='choice', dest='color', choices=('black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white'), help='choose a color: black, red, green, yellow, blue, magenta, cyan, white [Default: blue]')
+	parser.add_option('-s', '--screenshot',
+		action='store_true', dest='screenshot', help='take a screenshot')
 	(options, args) = parser.parse_args()
 
 # Define colors
-colorscheme = "%s" % options.color
+colorscheme = '%s' % options.color
 colors = {'black': '0', 'red': '1', 'green': '2', 'yellow': '3', 'blue': '4', 'magenta': '5', 'cyan': '6', 'white': '7'}
 for key in colors.keys():
 	if key in colorscheme: colorcode = colors[key]				
@@ -36,6 +38,12 @@ p1 = None
 def output(key, value):
 	output = '%s%s:%s %s' % (color, key, clear, value)
 	list.append(output)
+
+# Screenshot Function
+screen = '%s' % options.screenshot
+
+def screenshot():
+	subprocess.check_call(['scrot', '-cd5'])
 
 # Operating System Function
 def os_display(): 
@@ -121,7 +129,7 @@ def fs_display(mount=''):
 # Run functions found in 'display' array.
 for x in display:
 	call = [arg for arg in x.split(':') if arg]
-	funcname=call[0] + "_display"
+	funcname=call[0] + '_display'
 	func=locals()[funcname]
 	if len(call) > 1:
 		func(arg)
@@ -150,4 +158,8 @@ print """%s
 %s   ######'           '######    %s
 %s  ;####                 ####;   
 %s  ##'                     '##   
-%s #'                         `#  %s """ % (color, color, color, color, list[0], color, list[1], color, list[2], color, list[3], color, list[4], color, list[5], color, color2, color, list[6], color, color2, color, list[7], color, color2, list[8], color2, list[9], color2, list[10], color2, list[11], color2, list[12], color2, color2, color2, clear)
+%s #'                         `#  
+%s """ % (color, color, color, color, list[0], color, list[1], color, list[2], color, list[3], color, list[4], color, list[5], color, color2, color, list[6], color, color2, color, list[7], color, color2, list[8], color2, list[9], color2, list[10], color2, list[11], color2, list[12], color2, color2, color2, clear)
+
+if screen == 'True':
+	screenshot()
