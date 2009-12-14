@@ -8,6 +8,7 @@ from optparse import OptionParser
 # Display
 display = [
 	'os', 
+	'hostname',
 	'kernel', 
 #	'battery',
 	'uptime', 
@@ -24,7 +25,7 @@ list = []
 
 # Options
 if __name__=='__main__':
-	parser = OptionParser('usage: %prog [-c COLOR]')
+	parser = OptionParser(usage='%prog [-c COLOR] [-s, --screenshot]', description='To customize the data displayed on archey, edit "/usr/bin/archey" directly and look for the display array. Note: Archey can only allow up to 13 fields.')
 	parser.add_option('-c',
 		action='store', default='blue', type='choice', dest='color', choices=('black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white'), help='choose a color: black, red, green, yellow, blue, magenta, cyan, white [Default: blue]')
 	parser.add_option('-s', '--screenshot',
@@ -66,6 +67,11 @@ def os_display():
 def kernel_display():
 	kernel = Popen(['uname', '-r'], stdout=PIPE).communicate()[0].rstrip('\n')
 	output ('Kernel', kernel)
+
+# Kernel Function
+def hostname_display():
+	hostname = Popen(['uname', '-n'], stdout=PIPE).communicate()[0].rstrip('\n')
+	output ('Hostname', hostname)
 
 # Uptime Function
 def uptime_display():
