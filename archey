@@ -5,6 +5,20 @@ import subprocess, optparse
 from subprocess import Popen, PIPE
 from optparse import OptionParser
 
+# Display
+display = [
+	'os', 
+	'kernel', 
+#	'battery',
+	'uptime', 
+	'de', 
+	'wm', 
+	'packages',
+#	'fs:/boot', 
+#	'fs:/home',
+#	'fs:/MOUNT/POINT
+	'fs:/' ]
+
 # Array containing Values
 list = []
 
@@ -25,9 +39,6 @@ for key in colors.keys():
 color = '\x1b[1;3%sm' % colorcode
 color2 = '\x1b[0;3%sm' % colorcode
 clear = '\x1b[0m'
-
-# Display
-display = ['os', 'kernel', 'uptime', 'de', 'wm', 'packages', 'fs:/' ]
 
 # Find running processes.
 p1 = Popen(['ps', '-A'], stdout=PIPE).communicate()[0].split('\n')
