@@ -17,7 +17,7 @@ display = [
 	'packages',
 #	'fs:/boot', 
 #	'fs:/home',
-#	'fs:/MOUNT/POINT
+#	'fs:/MOUNT/POINT',
 	'fs:/' ]
 
 # Array containing Values
@@ -136,9 +136,9 @@ def packages_display():
 
 # File System Function
 def fs_display(mount=''):
-	p1 = Popen(['df', '-Th',  mount], stdout=PIPE).communicate()[0]
+	p1 = Popen(['df', '-Ph',  mount], stdout=PIPE).communicate()[0]
 	part = [line for line in p1.split('\n') if line][1]
-	part = part.split()[3]
+	part = part.split()[2]
 	if mount == '/': mount = '/root'
 	fs = mount.rpartition('/')[2].title()
    	output (fs, part)
