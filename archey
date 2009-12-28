@@ -99,7 +99,8 @@ def battery_display():
 def de_display():
 	dict = {'gnome-session': 'GNOME',
 		'ksmserver': 'KDE',
-		'xfce-mcs-manager': 'Xfce'}
+		'xfce-mcs-manager': 'Xfce 4',
+		'xfconfd': 'Xfce 4.6'}
 	de = 'None found'
 	for key in dict.keys():
 		if key in processes: de = dict[key]
@@ -113,12 +114,12 @@ def wm_display():
 		'compiz': 'Compiz',
 		'dwm': 'DWM',
 		'enlightenment': 'Enlightenment',
-                'fluxbox': 'Fluxbox',
+		'fluxbox': 'Fluxbox',
 		'fvwm': 'FVWM',
 		'icewm': 'icewm',
 		'kwin': 'kwin',
 		'metacity': 'Metacity',
-                'openbox': 'Openbox',
+		'openbox': 'Openbox',
 		'wmaker': 'Window Maker',
 		'xfwm4': 'Xfwm',
 		'xmonad': 'Xmonad'}  
