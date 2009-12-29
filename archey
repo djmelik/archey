@@ -36,7 +36,7 @@ list = []
 
 # Options
 if __name__=='__main__':
-	parser = OptionParser(usage='%prog [-c COLOR] [-s, --screenshot]', description='To customize the data displayed on archey, edit "/usr/bin/archey" directly and look for the display array. Note: Archey can only allow up to 13 fields.')
+	parser = OptionParser(usage='%prog [-c COLOR] [-s, --screenshot]', description='To customize the data displayed on archey, edit "/usr/bin/archey" directly and look for the display array. Note: Archey can only allow up to 15 fields.')
 	parser.add_option('-c',
 		action='store', default='blue', type='choice', dest='color', choices=('black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white'), help='choose a color: black, red, green, yellow, blue, magenta, cyan, white [Default: blue]')
 	parser.add_option('-s', '--screenshot',
@@ -57,6 +57,7 @@ de_dict = {'gnome-session': 'GNOME',
            'ksmserver': 'KDE',
            'xfce-mcs-manager': 'Xfce 4',
            'xfconfd': 'Xfce 4.6'}
+           
 wm_dict = {'awesome': 'Awesome',
            'beryl': 'Beryl',
            'blackbox': 'Blackbox',
@@ -184,12 +185,12 @@ for x in display:
 		func()
 
 # Array containing values.
-list.extend(['']*(13 - len(display)))
+list.extend(['']*(15 - len(display)))
 
 ###### Result #######
 print """%s
 %s               +                
-%s               #                
+%s               #                %s
 %s              ###               %s
 %s             #####              %s
 %s             ######             %s
@@ -203,10 +204,10 @@ print """%s
 %s    .#######;     ;#####.       %s
 %s    #########.   .########`     %s
 %s   ######'           '######    %s
-%s  ;####                 ####;   
+%s  ;####                 ####;   %s
 %s  ##'                     '##   
 %s #'                         `#  
-%s """ % (color, color, color, color, list[0], color, list[1], color, list[2], color, list[3], color, list[4], color, list[5], color, color2, color, list[6], color, color2, color, list[7], color, color2, list[8], color2, list[9], color2, list[10], color2, list[11], color2, list[12], color2, color2, color2, clear)
+%s """ % (color, color, color, list[0], color, list[1], color, list[2], color, list[3], color, list[4], color, list[5], color, list[6], color, color2, color, list[7], color, color2, color, list[8], color, color2, list[9], color2, list[10], color2, list[11], color2, list[12], color2, list[13], color2, list[14], color2, color2, clear)
 
 if screen == 'True':
 	screenshot()
