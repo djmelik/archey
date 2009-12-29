@@ -20,11 +20,11 @@ display = [
 	'os', # Display OS
 	'hostname', # Display Machine Hostname
 	'kernel',  # Display Kernel
-#	'battery', # Display Battery info [Requires 'acpi']
+	'battery', # Display Battery info [Requires 'acpi']
 	'uptime',  # Display Uptime
-	'de_or_wm', # Display  DE or WM
-#	'wm',  # Display WM
-#	'de', # Display DE
+#	'de_or_wm', # Display  DE or WM
+	'wm',  # Display WM
+	'de', # Display DE
 	'packages', # Display Number of Packages Installed
 #	'fs:/boot', # Display /boot partition
 #	'fs:/home', # Display /home partition
@@ -32,7 +32,7 @@ display = [
 	'fs:/' # Display / partition
 	]
 # Array containing Values
-list = []
+result = []
 
 # Options
 if __name__=='__main__':
@@ -83,7 +83,7 @@ p1 = None
 # Print coloured key with normal value.
 def output(key, value):
 	output = '%s%s:%s %s' % (color, key, clear, value)
-	list.append(output)
+	result.append(output)
 
 # Screenshot Function
 screen = '%s' % options.screenshot
@@ -185,7 +185,7 @@ for x in display:
 		func()
 
 # Array containing values.
-list.extend(['']*(15 - len(display)))
+result.extend(['']*(15 - len(display)))
 
 ###### Result #######
 print """%s
@@ -207,7 +207,7 @@ print """%s
 %s  ;####                 ####;   %s
 %s  ##'                     '##   
 %s #'                         `#  
-%s """ % (color, color, color, list[0], color, list[1], color, list[2], color, list[3], color, list[4], color, list[5], color, list[6], color, color2, color, list[7], color, color2, color, list[8], color, color2, list[9], color2, list[10], color2, list[11], color2, list[12], color2, list[13], color2, list[14], color2, color2, clear)
+%s """ % (color, color, color, result[0], color, result[1], color, result[2], color, result[3], color, result[4], color, result[5], color, result[6], color, color2, color, result[7], color, color2, color, result[8], color, color2, result[9], color2, result[10], color2, result[11], color2, result[12], color2, result[13], color2, result[14], color2, color2, clear)
 
 if screen == 'True':
 	screenshot()
