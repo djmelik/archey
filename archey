@@ -22,9 +22,9 @@ display = [
 	'kernel',  # Display Kernel
 	'battery', # Display Battery info [Requires 'acpi']
 	'uptime',  # Display Uptime
-#	'de_or_wm', # Display  DE or WM
-	'wm',  # Display WM
-	'de', # Display DE
+	'de_or_wm', # Display  DE or WM
+#	'wm',  # Display WM
+#	'de', # Display DE
 	'packages', # Display Number of Packages Installed
 #	'fs:/boot', # Display /boot partition
 #	'fs:/home', # Display /home partition
@@ -145,13 +145,18 @@ def wm_display():
 
 # Desktop Environment or Window Manager Function
 def de_or_wm_display():
-	for key in de_dict.keys():
-		if key in processes:
-			output ('DE', de_dict[key])
-			return
-	for key in wm_dict.keys():
-		if key in processes:
-			output ('WM', wm_dict[key])
+	gui = 'X'
+	if gui not in processes:
+		output ('GUI', 'Not Running')
+	if gui in processes:	
+		for key in de_dict.keys():
+			if key in processes:
+				output ('DE', de_dict[key])
+				return
+		for key in wm_dict.keys():
+			if key in processes:
+				output ('WM', wm_dict[key])
+				return
 
 # Packages Function
 def packages_display():
