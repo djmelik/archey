@@ -20,7 +20,7 @@ display = [
 	'os', # Display OS
 	'hostname', # Display Machine Hostname
 	'kernel',  # Display Kernel
-	'battery', # Display Battery info [Requires 'acpi']
+#	'battery', # Display Battery info [Requires 'acpi']
 	'uptime',  # Display Uptime
 	'de_or_wm', # Display  DE or WM
 #	'wm',  # Display WM
