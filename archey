@@ -10,7 +10,7 @@
 # System information.
 
 # Import libraries
-import subprocess, optparse
+import subprocess, optparse, re
 from subprocess import Popen, PIPE
 from optparse import OptionParser
 
@@ -25,6 +25,8 @@ display = [
 	'wm',  # Display WM
 	'de', # Display DE
 	'packages', # Display Number of Packages Installed
+	'ram', # Display RAM usage
+	'cpu', # Display CPU 
 #	'fs:/boot', # Display /boot partition
 #	'fs:/home', # Display /home partition
 #	'fs:/MOUNT/POINT', # Display any partition, edit to your needs
@@ -65,14 +67,16 @@ wm_dict = {'awesome': 'Awesome',
            'enlightenment': 'Enlightenment',
            'fluxbox': 'Fluxbox',
            'fvwm': 'FVWM',
-           'icewm': 'icewm',
+           'icewm': 'IceWM',
            'kwin': 'KWin',
            'metacity': 'Metacity',
-           'openbox': 'Openbox',
-           'wmaker': 'Window Maker',
+	   'musca': 'Musca',
+	   'openbox': 'Openbox',
+           'pekwm': 'PekWM',
+	   'wmaker': 'Window Maker',
            'wmii': 'wmii',
            'xfwm4': 'Xfwm',
-           'xmonad': 'xmonad'}
+           'xmonad': 'Xmonad'}
 
 # Find running processes.
 p1 = Popen(['ps', '-A'], stdout=PIPE).communicate()[0].split('\n')
@@ -86,6 +90,13 @@ def output(key, value):
 
 # Screenshot Function
 screen = '%s' % options.screenshot
+
+# RAM Function
+def ram_display():
+        raminfo = Popen(['free', '-m'], stdout=PIPE).communicate()[0].split('\n')
+        ram = ''.join(filter(re.compile('M').search, raminfo)).split()
+        used = int(ram[2]) - int(ram[5]) - int(ram[6])
+        output ('RAM', '%s MB / %s MB' % (used, ram[1]))
 
 def screenshot():
 	subprocess.check_call(['scrot', '-cd5'])
@@ -105,6 +116,12 @@ def kernel_display():
 def hostname_display():
 	hostname = Popen(['uname', '-n'], stdout=PIPE).communicate()[0].rstrip('\n')
 	output ('Hostname', hostname)
+
+# CPU Function
+def cpu_display():
+        file = open('/proc/cpuinfo').readlines()
+	cpuinfo = file[4].replace('model name\t: ', '').rstrip('\n').replace('\t', ' ').replace('\t\t', ' ').replace('  ', '').replace('   ', '').replace('    ', '').replace('     ', '').replace('     ', '')
+	output ('CPU', cpuinfo) 
 
 # Uptime Function
 def uptime_display():
