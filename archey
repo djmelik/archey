@@ -76,11 +76,15 @@ wm_dict = {'awesome': 'Awesome',
 	   'wmaker': 'Window Maker',
            'wmii': 'wmii',
            'xfwm4': 'Xfwm',
-           'xmonad': 'Xmonad'}
+           'xmonad': 'xmonad'}
 
 # Find running processes.
+def xmonadfix(str):
+	if re.compile("xmonad").match(str): return "xmonad"
+	return str
+
 p1 = Popen(['ps', '-A'], stdout=PIPE).communicate()[0].split('\n')
-processes = [process.split()[3] for process in p1 if process]
+processes = map(xmonadfix, [process.split()[3] for process in p1 if process])
 p1 = None
 
 # Print coloured key with normal value.
@@ -120,7 +124,7 @@ def hostname_display():
 # CPU Function
 def cpu_display():
         file = open('/proc/cpuinfo').readlines()
-	cpuinfo = file[4].replace('model name\t: ', '').rstrip('\n').replace('\t', ' ').replace('\t\t', ' ').replace('  ', '').replace('   ', '').replace('    ', '').replace('     ', '').replace('     ', '')
+	cpuinfo = re.sub('  +', ' ', file[4].replace('model name\t: ', '').rstrip('\n'))
 	output ('CPU', cpuinfo) 
 
 # Uptime Function
@@ -151,7 +155,7 @@ def de_display():
 	for key in de_dict.keys():
 		if key in processes: de = de_dict[key]
 	output ('DE', de)
- 
+
 # Window Manager Function
 def wm_display():
 	wm = 'None found'
