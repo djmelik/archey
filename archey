@@ -1,43 +1,43 @@
 #!/usr/bin/env python
 #
-# archey [version 0.1-4]
+# archey [version 0.1-7]
 #
 # Maintained by Melik Manukyan <melik@archlinux.us>
 # Distributed under the terms of the GNU General Public License v3.
 # See http://www.gnu.org/licenses/gpl.txt for the full license text.
 #
-# Program to display an Archlinux logo in ASCII art along with basic
-# System information.
+# Simple python script to display an Archlinux logo in ASCII art 
+# Along with basic system information.
 
 # Import libraries
 import subprocess, optparse, re
 from subprocess import Popen, PIPE
 from optparse import OptionParser
 
-# Display
-# Comment/Uncomment to Enable/Disable information.
+# Display [Comment/Uncomment to Enable/Disable information.]
 display = [
-	'os', # Display OS
+	'os', # Display Operating System
 	'hostname', # Display Machine Hostname
-	'kernel',  # Display Kernel
-#	'battery', # Display Battery info [Requires 'acpi']
-	'uptime',  # Display Uptime
-	'wm',  # Display WM
-	'de', # Display DE
+	'kernel',  # Display Kernel Version
+#	'battery', # Display Battery Usage [Requires 'acpi']
+	'uptime',  # Display System Uptime
+	'wm',  # Display Window Manager
+	'de', # Display Desktop Environment
 	'packages', # Display Number of Packages Installed
-	'ram', # Display RAM usage
-	'cpu', # Display CPU 
-#	'fs:/boot', # Display /boot partition
-#	'fs:/home', # Display /home partition
-#	'fs:/MOUNT/POINT', # Display any partition, edit to your needs
-	'fs:/' # Display / partition
+	'ram', # Display RAM Usage
+	'cpu', # Display CPU Model
+  'sh', # Display Current Shell
+#	'fs:/boot', # Display /boot Partition Usage
+#	'fs:/home', # Display /home Partition Usage
+#	'fs:/MOUNT/POINT', # Display * Partition, Edit To Your Needs
+	'fs:/' # Display / Partition Usage
 	]
 # Array containing Values
 result = []
 
 # Options
 if __name__=='__main__':
-	parser = OptionParser(usage='%prog [-c COLOR] [-s, --screenshot]', description='To customize the data displayed on archey, edit "/usr/bin/archey" directly and look for the display array. Note: Archey can only allow up to 15 fields.')
+	parser = OptionParser(usage='%prog [-c COLOR] [-s, --screenshot]', description='To customize the info displayed on archey, edit "/usr/bin/archey" directly and look for the display array. Note: Archey can only allow up to 15 fields.')
 	parser.add_option('-c',
 		action='store', default='blue', type='choice', dest='color', choices=('black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white'), help='choose a color: black, red, green, yellow, blue, magenta, cyan, white [Default: blue]')
 	parser.add_option('-s', '--screenshot',
@@ -53,7 +53,7 @@ color = '\x1b[1;3%sm' % colorcode
 color2 = '\x1b[0;3%sm' % colorcode
 clear = '\x1b[0m'
 
-# Define processes for identifying DEs or WMs.
+# Define processes for identifying Desktop Environmentss, Window Managers, Shells.
 de_dict = {'gnome-session': 'GNOME',
            'ksmserver': 'KDE',
            'xfce-mcs-manager': 'Xfce 4',
@@ -70,19 +70,26 @@ wm_dict = {'awesome': 'Awesome',
            'icewm': 'IceWM',
            'kwin': 'KWin',
            'metacity': 'Metacity',
-	   'musca': 'Musca',
-	   'openbox': 'Openbox',
+	         'musca': 'Musca',
+	         'openbox': 'Openbox',
            'pekwm': 'PekWM',
-	   'wmaker': 'Window Maker',
+           'wmaker': 'Window Maker',
            'wmii': 'wmii',
            'xfwm4': 'Xfwm',
            'xmonad': 'xmonad'}
+
+sh_dict = {'zsh': 'Z-Shell',
+           'bash': 'Bash',
+           'dash': 'Dash',
+           'fish': 'Fish',
+           'ksh': 'Korn Shell',
+           'jsh': 'Job control shell',
+           'tcsh': 'The C Shell'}
 
 # Find running processes.
 def xmonadfix(str):
 	if re.compile("xmonad").match(str): return "xmonad"
 	return str
-
 p1 = Popen(['ps', '-A'], stdout=PIPE).communicate()[0].split('\n')
 processes = map(xmonadfix, [process.split()[3] for process in p1 if process])
 p1 = None
@@ -92,8 +99,6 @@ def output(key, value):
 	output = '%s%s:%s %s' % (color, key, clear, value)
 	result.append(output)
 
-# Screenshot Function
-screen = '%s' % options.screenshot
 
 # RAM Function
 def ram_display():
@@ -102,6 +107,8 @@ def ram_display():
         used = int(ram[2]) - int(ram[5]) - int(ram[6])
         output ('RAM', '%s MB / %s MB' % (used, ram[1]))
 
+# Screenshot Function 
+screen = '%s' % options.screenshot
 def screenshot():
 	subprocess.check_call(['scrot', '-cd5'])
 
@@ -116,7 +123,7 @@ def kernel_display():
 	kernel = Popen(['uname', '-r'], stdout=PIPE).communicate()[0].rstrip('\n')
 	output ('Kernel', kernel)
 
-# Kernel Function
+# Hostname Function
 def hostname_display():
 	hostname = Popen(['uname', '-n'], stdout=PIPE).communicate()[0].rstrip('\n')
 	output ('Hostname', hostname)
@@ -162,6 +169,13 @@ def wm_display():
 	for key in wm_dict.keys():
 		if key in processes: wm = wm_dict[key]
 	output ('WM', wm)
+
+# Shell Function
+def sh_display():
+  sh = 'None found'
+  for key in processes: 
+    if key in sh_dict.keys(): sh = sh_dict[key]
+  output ('Shell', sh)
 
 # Packages Function
 def packages_display():
