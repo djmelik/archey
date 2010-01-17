@@ -103,14 +103,13 @@ def output(key, value):
 
 # RAM Function
 def ram_display():
-        raminfo = Popen(['free', '-m'], stdout=PIPE).communicate()[0].split('\n')
-        ram = ''.join(filter(re.compile('M').search, raminfo)).split()
-        used = int(ram[2]) - int(ram[5]) - int(ram[6])
-        output ('RAM', '%s MB / %s MB' % (used, ram[1]))
+  raminfo = Popen(['free', '-m'], stdout=PIPE).communicate()[0].split('\n')
+  ram = ''.join(filter(re.compile('M').search, raminfo)).split()
+  used = int(ram[2]) - int(ram[5]) - int(ram[6])
+  output ('RAM', '%s MB / %s MB' % (used, ram[1]))
 
 # Screenshot Function 
 screen = '%s' % options.screenshot
-
 def screenshot():
   subprocess.check_call(['scrot', '-cd5'])
 
@@ -132,11 +131,11 @@ def hostname_display():
 
 # CPU Function
 def cpu_display():
-        file = open('/proc/cpuinfo').readlines()
-	cpuinfo = re.sub('  +', ' ', file[4].replace('model name\t: ', '').rstrip('\n'))
-	output ('CPU', cpuinfo) 
+  file = open('/proc/cpuinfo').readlines()
+  cpuinfo = re.sub('  +', ' ', file[4].replace('model name\t: ', '').rstrip('\n'))
+  output ('CPU', cpuinfo) 
 
-# Upscrottime Function
+# Uptime Function
 def uptime_display():
 	fuptime = int(open('/proc/uptime').read().split('.')[0])
 	day = int(fuptime / 86400)
