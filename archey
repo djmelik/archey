@@ -13,6 +13,7 @@
 import subprocess, optparse, re
 from subprocess import Popen, PIPE
 from optparse import OptionParser
+from getpass import getuser
 
 # Display [Comment/Uncomment to Enable/Disable information.]
 display = [
@@ -78,19 +79,20 @@ wm_dict = {'awesome': 'Awesome',
            'xfwm4': 'Xfwm',
            'xmonad': 'xmonad'}
 
-sh_dict = {'zsh': 'Z-Shell',
+sh_dict = {'zsh': 'Zsh',
            'bash': 'Bash',
            'dash': 'Dash',
            'fish': 'Fish',
-           'ksh': 'Korn Shell',
-           'jsh': 'Job control shell',
-           'tcsh': 'The C Shell'}
+           'ksh': 'Ksh',
+           'csh': 'Csh',
+           'jsh': 'Jsh',
+           'tcsh': 'Tcsh'}
 
 # Find running processes.
 def xmonadfix(str):
 	if re.compile("xmonad").match(str): return "xmonad"
 	return str
-p1 = Popen(['ps', '-A'], stdout=PIPE).communicate()[0].split('\n')
+p1 = Popen(['ps', '-u', getuser()], stdout=PIPE).communicate()[0].split('\n')
 processes = map(xmonadfix, [process.split()[3] for process in p1 if process])
 p1 = None
 
@@ -98,7 +100,6 @@ p1 = None
 def output(key, value):
 	output = '%s%s:%s %s' % (color, key, clear, value)
 	result.append(output)
-
 
 # RAM Function
 def ram_display():
@@ -109,8 +110,9 @@ def ram_display():
 
 # Screenshot Function 
 screen = '%s' % options.screenshot
+
 def screenshot():
-	subprocess.check_call(['scrot', '-cd5'])
+  subprocess.check_call(['scrot', '-cd5'])
 
 # Operating System Function
 def os_display(): 
@@ -134,7 +136,7 @@ def cpu_display():
 	cpuinfo = re.sub('  +', ' ', file[4].replace('model name\t: ', '').rstrip('\n'))
 	output ('CPU', cpuinfo) 
 
-# Uptime Function
+# Upscrottime Function
 def uptime_display():
 	fuptime = int(open('/proc/uptime').read().split('.')[0])
 	day = int(fuptime / 86400)
@@ -209,7 +211,7 @@ for x in display:
 		func()
 
 # Array containing values.
-result.extend(['']*(15 - len(display)))
+result.extend(['']*(16 - len(display)))
 
 ###### Result #######
 print """%s
@@ -229,9 +231,9 @@ print """%s
 %s    #########.   .########`     %s
 %s   ######'           '######    %s
 %s  ;####                 ####;   %s
-%s  ##'                     '##   
+%s  ##'                     '##  %s 
 %s #'                         `#  
-%s """ % (color, color, color, result[0], color, result[1], color, result[2], color, result[3], color, result[4], color, result[5], color, result[6], color, color2, color, result[7], color, color2, color, result[8], color, color2, result[9], color2, result[10], color2, result[11], color2, result[12], color2, result[13], color2, result[14], color2, color2, clear)
+%s """ % (color, color, color, result[0], color, result[1], color, result[2], color, result[3], color, result[4], color, result[5], color, result[6], color, color2, color, result[7], color, color2, color, result[8], color, color2, result[9], color2, result[10], color2, result[11], color2, result[12], color2, result[13], color2, result[14], color2, result[15], color2, clear)
 
 if screen == 'True':
 	screenshot()
