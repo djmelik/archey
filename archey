@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# archey [version 0.1-7]
+# archey [version 0.1-8]
 #
 # Maintained by Melik Manukyan <melik@archlinux.us>
 # Distributed under the terms of the GNU General Public License v3.
@@ -10,10 +10,11 @@
 # Along with basic system information.
 
 # Import libraries
-import subprocess, optparse, re
+import sys, subprocess, optparse, re
 from subprocess import Popen, PIPE
 from optparse import OptionParser
 from getpass import getuser
+from time import ctime, sleep
 
 # Display [Comment/Uncomment to Enable/Disable information.]
 display = [
@@ -111,7 +112,15 @@ def ram_display():
 # Screenshot Function 
 screen = '%s' % options.screenshot
 def screenshot():
-  subprocess.check_call(['scrot', '-cd5'])
+  print 'Taking shot in',
+  list = range(1,6)
+  list.reverse()
+  for x in list:
+    print '%s..' % x,
+    sys.stdout.flush()
+    sleep(1)
+  subprocess.check_call(['import', '-window', 'root', ctime().replace(' ','_')+'.png'])
+  print 'Say Cheeze!'
 
 # Operating System Function
 def os_display(): 
