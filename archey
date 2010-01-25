@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# archey [version 0.1-9]
+# archey [version 0.1-10]
 #
 # Maintained by Melik Manukyan <melik@archlinux.us>
 # Distributed under the terms of the GNU General Public License v3.
@@ -39,8 +39,8 @@ result = []
 
 # Options
 if __name__=='__main__':
-	parser = OptionParser(usage='%prog [-c COLOR] [-s, --screenshot]', description='To customize the info displayed on archey, edit "/usr/bin/archey" directly and look for the display array. Note: Archey can only allow up to 15 fields.')
-	parser.add_option('-c',
+	parser = OptionParser(usage='%prog [-c COLOR] [-s, --screenshot]', description='To customize the info displayed on archey, edit "/usr/bin/archey" directly and look for the display array. Note: Archey can only allow up to 15 fields.', version="%prog 0.1.10")
+        parser.add_option('-c',
 		action='store', default='blue', type='choice', dest='color', choices=('black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white'), help='choose a color: black, red, green, yellow, blue, magenta, cyan, white [Default: blue]')
 	parser.add_option('-s', '--screenshot',
 		action='store_true', dest='screenshot', help='take a screenshot')
@@ -75,6 +75,7 @@ wm_dict = {'awesome': 'Awesome',
 	         'musca': 'Musca',
 	         'openbox': 'Openbox',
            'pekwm': 'PekWM',
+           'scrotwm': 'ScrotWM',
            'wmaker': 'Window Maker',
            'wmii': 'wmii',
            'xfwm4': 'Xfwm',
@@ -119,8 +120,8 @@ def screenshot():
     print '%s..' % x,
     sys.stdout.flush()
     sleep(1)
-  subprocess.check_call(['import', '-window', 'root', ctime().replace(' ','_')+'.png'])
   print 'Say Cheeze!'
+  subprocess.check_call(['import', '-window', 'root', ctime().replace(' ','_')+'.png'])
 
 # Operating System Function
 def os_display(): 
@@ -171,14 +172,14 @@ def de_display():
 	de = 'None found'
 	for key in de_dict.keys():
 		if key in processes: de = de_dict[key]
-	output ('DE', de)
+	output ('Desktop Enviornment', de)
 
 # Window Manager Function
 def wm_display():
 	wm = 'None found'
 	for key in wm_dict.keys():
 		if key in processes: wm = wm_dict[key]
-	output ('WM', wm)
+	output ('Window Manager', wm)
 
 # Shell Function
 def sh_display():
