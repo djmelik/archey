@@ -28,7 +28,7 @@ display = [
 	'packages', # Display Number of Packages Installed
 	'ram', # Display RAM Usage
 	'cpu', # Display CPU Model
-  'sh', # Display Current Shell
+        'sh', # Display Current Shell
 #	'fs:/boot', # Display /boot Partition Usage
 #	'fs:/home', # Display /home Partition Usage
 #	'fs:/MOUNT/POINT', # Display * Partition, Edit To Your Needs
@@ -72,8 +72,8 @@ wm_dict = {'awesome': 'Awesome',
            'icewm': 'IceWM',
            'kwin': 'KWin',
            'metacity': 'Metacity',
-	         'musca': 'Musca',
-	         'openbox': 'Openbox',
+           'musca': 'Musca',
+           'openbox': 'Openbox',
            'pekwm': 'PekWM',
            'scrotwm': 'ScrotWM',
            'wmaker': 'Window Maker',
@@ -172,7 +172,7 @@ def de_display():
 	de = 'None found'
 	for key in de_dict.keys():
 		if key in processes: de = de_dict[key]
-	output ('Desktop Enviornment', de)
+	output ('Desktop Environment', de)
 
 # Window Manager Function
 def wm_display():
@@ -183,10 +183,10 @@ def wm_display():
 
 # Shell Function
 def sh_display():
-  sh = 'None found'
-  for key in processes: 
-    if key in sh_dict.keys(): sh = sh_dict[key]
-  output ('Shell', sh)
+        sh = 'None found'
+        for key in processes: 
+                if key in sh_dict.keys(): sh = sh_dict[key]
+        output ('Shell', sh)
 
 # Packages Function
 def packages_display():
