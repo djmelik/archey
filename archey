@@ -58,8 +58,7 @@ clear = '\x1b[0m'
 # Define processes for identifying Desktop Environmentss, Window Managers, Shells.
 de_dict = {'gnome-session': 'GNOME',
            'ksmserver': 'KDE',
-           'xfce-mcs-manager': 'Xfce 4',
-           'xfconfd': 'Xfce 4.6'}
+           'xfconfd': 'Xfce'}
            
 wm_dict = {'awesome': 'Awesome',
            'beryl': 'Beryl',
