@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# archey [version 0.1-10]
+# archey [version 0.1-11]
 #
 # Maintained by Melik Manukyan <melik@archlinux.us>
 # Distributed under the terms of the GNU General Public License v3.
@@ -10,7 +10,7 @@
 # Along with basic system information.
 
 # Import libraries
-import sys, subprocess, optparse, re
+import os, sys, subprocess, optparse, re
 from subprocess import Popen, PIPE
 from optparse import OptionParser
 from getpass import getuser
@@ -18,89 +18,92 @@ from time import ctime, sleep
 
 # Display [Comment/Uncomment to Enable/Disable information.]
 display = [
-	'os', # Display Operating System
-	'hostname', # Display Machine Hostname
-	'kernel',  # Display Kernel Version
-#	'battery', # Display Battery Usage [Requires 'acpi']
-	'uptime',  # Display System Uptime
-	'wm',  # Display Window Manager
-	'de', # Display Desktop Environment
-	'packages', # Display Number of Packages Installed
-	'ram', # Display RAM Usage
-	'cpu', # Display CPU Model
-        'sh', # Display Current Shell
-#	'fs:/boot', # Display /boot Partition Usage
-#	'fs:/home', # Display /home Partition Usage
-#	'fs:/MOUNT/POINT', # Display * Partition, Edit To Your Needs
-	'fs:/' # Display / Partition Usage
-	]
+ 'os', # Display Operating System
+ 'hostname', # Display Machine Hostname
+ 'kernel',  # Display Kernel Version
+# 'battery', # Display Battery Usage [Requires 'acpi']
+ 'uptime',  # Display System Uptime
+ 'wm',  # Display Window Manager
+ 'de', # Display Desktop Environment
+ 'packages', # Display Number of Packages Installed
+ 'ram', # Display RAM Usage
+ 'cpu', # Display CPU Model
+ 'sh', # Display Current Shell
+# 'fs:/boot', # Display /boot Partition Usage
+# 'fs:/home', # Display /home Partition Usage
+# 'fs:/MOUNT/POINT', # Display * Partition, Edit To Your Needs
+ 'fs:/' # Display / Partition Usage
+ ]
 # Array containing Values
 result = []
 
 # Options
 if __name__=='__main__':
-	parser = OptionParser(usage='%prog [-c COLOR] [-s, --screenshot]', description='To customize the info displayed on archey, edit "/usr/bin/archey" directly and look for the display array. Note: Archey can only allow up to 15 fields.', version="%prog 0.1.10")
-        parser.add_option('-c',
-		action='store', default='blue', type='choice', dest='color', choices=('black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white'), help='choose a color: black, red, green, yellow, blue, magenta, cyan, white [Default: blue]')
-	parser.add_option('-s', '--screenshot',
-		action='store_true', dest='screenshot', help='take a screenshot')
-	(options, args) = parser.parse_args()
+ parser = OptionParser(usage='%prog [-c COLOR] [-s, --screenshot]', description='To customize the info displayed on archey, edit "/usr/bin/archey" directly and look for the display array. Note: Archey can only allow up to 15 fields.', version="%prog 0.1.11")
+ parser.add_option('-c',
+  action='store', default='blue', type='choice', dest='color', choices=('black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white'), help='choose a color: black, red, green, yellow, blue, magenta, cyan, white [Default: blue]')
+ parser.add_option('-s', '--screenshot',
+  action='store_true', dest='screenshot', help='take a screenshot')
+ (options, args) = parser.parse_args()
 
 # Define colors
 colorscheme = '%s' % options.color
 colors = {'black': '0', 'red': '1', 'green': '2', 'yellow': '3', 'blue': '4', 'magenta': '5', 'cyan': '6', 'white': '7'}
 for key in colors.keys():
-	if key in colorscheme: colorcode = colors[key]				
+ if key in colorscheme: colorcode = colors[key]    
 color = '\x1b[1;3%sm' % colorcode
 color2 = '\x1b[0;3%sm' % colorcode
 clear = '\x1b[0m'
 
 # Define processes for identifying Desktop Environmentss, Window Managers, Shells.
-de_dict = {'gnome-session': 'GNOME',
-           'ksmserver': 'KDE',
-           'xfconfd': 'Xfce'}
+de_dict = {
+ 'gnome-session': 'GNOME',
+ 'ksmserver': 'KDE',
+ 'xfconfd': 'Xfce'}
            
-wm_dict = {'awesome': 'Awesome',
-           'beryl': 'Beryl',
-           'blackbox': 'Blackbox',
-           'compiz': 'Compiz',
-           'dwm': 'DWM',
-           'enlightenment': 'Enlightenment',
-           'fluxbox': 'Fluxbox',
-           'fvwm': 'FVWM',
-           'icewm': 'IceWM',
-           'kwin': 'KWin',
-           'metacity': 'Metacity',
-           'musca': 'Musca',
-           'openbox': 'Openbox',
-           'pekwm': 'PekWM',
-           'scrotwm': 'ScrotWM',
-           'wmaker': 'Window Maker',
-           'wmii': 'wmii',
-           'xfwm4': 'Xfwm',
-           'xmonad': 'xmonad'}
+wm_dict = {
+ 'awesome': 'Awesome',
+ 'beryl': 'Beryl',
+ 'blackbox': 'Blackbox',
+ 'compiz': 'Compiz',
+ 'dwm': 'DWM',
+ 'enlightenment': 'Enlightenment',
+ 'fluxbox': 'Fluxbox',
+ 'fvwm': 'FVWM',
+ 'icewm': 'IceWM',
+ 'kwin': 'KWin',
+ 'metacity': 'Metacity',
+ 'musca': 'Musca',
+ 'openbox': 'Openbox',
+ 'pekwm': 'PekWM',
+ 'scrotwm': 'ScrotWM',
+ 'wmaker': 'Window Maker',
+ 'wmii': 'wmii',
+ 'xfwm4': 'Xfwm',
+ 'xmonad': 'xmonad'}
 
-sh_dict = {'zsh': 'Zsh',
-           'bash': 'Bash',
-           'dash': 'Dash',
-           'fish': 'Fish',
-           'ksh': 'Ksh',
-           'csh': 'Csh',
-           'jsh': 'Jsh',
-           'tcsh': 'Tcsh'}
+sh_dict = {
+ 'zsh': 'Zsh',
+ 'bash': 'Bash',
+ 'dash': 'Dash',
+ 'fish': 'Fish',
+ 'ksh': 'Ksh',
+ 'csh': 'Csh',
+ 'jsh': 'Jsh',
+ 'tcsh': 'Tcsh'}
 
 # Find running processes.
 def xmonadfix(str):
-	if re.compile("xmonad").match(str): return "xmonad"
-	return str
+ if re.compile("xmonad").match(str): return "xmonad"
+ return str
 p1 = Popen(['ps', '-u', getuser()], stdout=PIPE).communicate()[0].split('\n')
 processes = map(xmonadfix, [process.split()[3] for process in p1 if process])
 p1 = None
 
 # Print coloured key with normal value.
 def output(key, value):
-	output = '%s%s:%s %s' % (color, key, clear, value)
-	result.append(output)
+ output = '%s%s:%s %s' % (color, key, clear, value)
+ result.append(output)
 
 # RAM Function
 def ram_display():
@@ -112,111 +115,109 @@ def ram_display():
 # Screenshot Function 
 screen = '%s' % options.screenshot
 def screenshot():
-  print 'Taking shot in',
-  list = range(1,6)
-  list.reverse()
-  for x in list:
-    print '%s..' % x,
-    sys.stdout.flush()
-    sleep(1)
-  print 'Say Cheeze!'
-  subprocess.check_call(['import', '-window', 'root', ctime().replace(' ','_')+'.png'])
+ print 'Taking shot in',
+ list = range(1,6)
+ list.reverse()
+ for x in list:
+   print '%s..' % x,
+   sys.stdout.flush()
+   sleep(1)
+ print 'Say Cheeze!'
+ subprocess.check_call(['import', '-window', 'root', ctime().replace(' ','_')+'.png'])
 
 # Operating System Function
 def os_display(): 
-	arch = Popen(['uname', '-m'], stdout=PIPE).communicate()[0].rstrip('\n')
-	os = 'Arch Linux %s' % (arch)
-	output('OS', os)
+ arch = Popen(['uname', '-m'], stdout=PIPE).communicate()[0].rstrip('\n')
+ os = 'Arch Linux %s' % (arch)
+ output('OS', os)
 
 # Kernel Function
 def kernel_display():
-	kernel = Popen(['uname', '-r'], stdout=PIPE).communicate()[0].rstrip('\n')
-	output ('Kernel', kernel)
+ kernel = Popen(['uname', '-r'], stdout=PIPE).communicate()[0].rstrip('\n')
+ output ('Kernel', kernel)
 
 # Hostname Function
 def hostname_display():
-	hostname = Popen(['uname', '-n'], stdout=PIPE).communicate()[0].rstrip('\n')
-	output ('Hostname', hostname)
+ hostname = Popen(['uname', '-n'], stdout=PIPE).communicate()[0].rstrip('\n')
+ output ('Hostname', hostname)
 
 # CPU Function
 def cpu_display():
-  file = open('/proc/cpuinfo').readlines()
-  cpuinfo = re.sub('  +', ' ', file[4].replace('model name\t: ', '').rstrip('\n'))
-  output ('CPU', cpuinfo) 
+ file = open('/proc/cpuinfo').readlines()
+ cpuinfo = re.sub('  +', ' ', file[4].replace('model name\t: ', '').rstrip('\n'))
+ output ('CPU', cpuinfo) 
 
 # Uptime Function
 def uptime_display():
-	fuptime = int(open('/proc/uptime').read().split('.')[0])
-	day = int(fuptime / 86400)
-	fuptime = fuptime % 86400
-	hour = int(fuptime / 3600)
-	fuptime = fuptime % 3600
-	minute = int(fuptime / 60)
-	uptime = ''
-	if day == 1:
-		uptime += '%d day, ' % day
-	if day > 1:
-		uptime += '%d days, ' % day
-	uptime += '%d:%02d' % (hour, minute)
-	output('Uptime', uptime)
+ fuptime = int(open('/proc/uptime').read().split('.')[0])
+ day = int(fuptime / 86400)
+ fuptime = fuptime % 86400
+ hour = int(fuptime / 3600)
+ fuptime = fuptime % 3600
+ minute = int(fuptime / 60)
+ uptime = ''
+ if day == 1:
+  uptime += '%d day, ' % day
+ if day > 1:
+  uptime += '%d days, ' % day
+ uptime += '%d:%02d' % (hour, minute)
+ output('Uptime', uptime)
 
 # Battery Function [Requires: acpi]
 def battery_display(): 
-	p1 = Popen(['acpi'], stdout=PIPE).communicate()[0].lstrip()
-	battery = p1.split(' ')[3].rstrip('\n')
-	output ('Battery', battery)
+ p1 = Popen(['acpi'], stdout=PIPE).communicate()[0].lstrip()
+ battery = p1.split(' ')[3].rstrip('\n')
+ output ('Battery', battery)
 
 # Desktop Environment Function 
 def de_display():
-	de = 'None found'
-	for key in de_dict.keys():
-		if key in processes: de = de_dict[key]
-	output ('Desktop Environment', de)
+ de = 'None found'
+ for key in de_dict.keys():
+  if key in processes: de = de_dict[key]
+ output ('Desktop Environment', de)
 
 # Window Manager Function
 def wm_display():
-	wm = 'None found'
-	for key in wm_dict.keys():
-		if key in processes: wm = wm_dict[key]
-	output ('Window Manager', wm)
+ wm = 'None found'
+ for key in wm_dict.keys():
+  if key in processes: wm = wm_dict[key]
+ output ('Window Manager', wm)
 
 # Shell Function
 def sh_display():
-        sh = 'None found'
-        for key in processes: 
-                if key in sh_dict.keys(): sh = sh_dict[key]
-        output ('Shell', sh)
+ sh = os.getenv("SHELL").split('/')[-1].capitalize()
+ output ('Shell', sh)
 
 # Packages Function
 def packages_display():
-	p1 = Popen(['pacman', '-Q'], stdout=PIPE)
-	p2 = Popen(['wc', '-l'], stdin=p1.stdout, stdout=PIPE)
-	packages = p2.communicate()[0].rstrip('\n')
-	output ('Packages', packages)
+ p1 = Popen(['pacman', '-Q'], stdout=PIPE)
+ p2 = Popen(['wc', '-l'], stdin=p1.stdout, stdout=PIPE)
+ packages = p2.communicate()[0].rstrip('\n')
+ output ('Packages', packages)
 
 # File System Function
 def fs_display(mount=''):
-	p1 = Popen(['df', '-TPh', mount], stdout=PIPE).communicate()[0]
-	used = [line for line in p1.split('\n') if line][1]
-	used = used.split()[3]
-	total = [line for line in p1.split('\n') if line][1]
-	total = total.split()[2]
-	type = [line for line in p1.split('\n') if line][1]
-	type = type.split()[1]
-	if mount == '/': mount = '/root'
-	fs = mount.rpartition('/')[2].title() + " FS"
-	part = '%s / %s (%s)' % (used, total, type)
-   	output (fs, part)
+ p1 = Popen(['df', '-TPh', mount], stdout=PIPE).communicate()[0]
+ used = [line for line in p1.split('\n') if line][1]
+ used = used.split()[3]
+ total = [line for line in p1.split('\n') if line][1]
+ total = total.split()[2]
+ type = [line for line in p1.split('\n') if line][1]
+ type = type.split()[1]
+ if mount == '/': mount = '/root'
+ fs = mount.rpartition('/')[2].title() + " FS"
+ part = '%s / %s (%s)' % (used, total, type)
+ output (fs, part)
 
 # Run functions found in 'display' array.
 for x in display:
-	call = [arg for arg in x.split(':') if arg]
-	funcname=call[0] + '_display'
-	func=locals()[funcname]
-	if len(call) > 1:
-		func(arg)
-	else:
-		func()
+ call = [arg for arg in x.split(':') if arg]
+ funcname=call[0] + '_display'
+ func=locals()[funcname]
+ if len(call) > 1:
+  func(arg)
+ else:
+  func()
 
 # Array containing values.
 result.extend(['']*(16 - len(display)))
@@ -244,4 +245,4 @@ print """%s
 %s """ % (color, color, color, result[0], color, result[1], color, result[2], color, result[3], color, result[4], color, result[5], color, result[6], color, color2, color, result[7], color, color2, color, result[8], color, color2, result[9], color2, result[10], color2, result[11], color2, result[12], color2, result[13], color2, result[14], color2, result[15], color2, clear)
 
 if screen == 'True':
-	screenshot()
+ screenshot()
