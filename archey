@@ -6,8 +6,7 @@
 # Distributed under the terms of the GNU General Public License v3.
 # See http://www.gnu.org/licenses/gpl.txt for the full license text.
 #
-# Simple python script to display an Archlinux logo in ASCII art 
-# Along with basic system information.
+# System information tool for Archlinux written in python.
 
 # Import libraries
 import os, sys, subprocess, optparse, re
@@ -76,6 +75,7 @@ wm_dict = {
  'musca': 'Musca',
  'openbox': 'Openbox',
  'pekwm': 'PekWM',
+ 'ratpoison': 'ratpoison',
  'scrotwm': 'ScrotWM',
  'wmaker': 'Window Maker',
  'wmii': 'wmii',
@@ -123,7 +123,7 @@ def screenshot():
    sys.stdout.flush()
    sleep(1)
  print 'Say Cheeze!'
- subprocess.check_call(['import', '-window', 'root', ctime().replace(' ','_')+'.png'])
+ subprocess.check_call([scrot])
 
 # Operating System Function
 def os_display(): 
