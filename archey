@@ -69,6 +69,7 @@ wm_dict = {
  'enlightenment': 'Enlightenment',
  'fluxbox': 'Fluxbox',
  'fvwm': 'FVWM',
+ 'i3': 'i3',
  'icewm': 'IceWM',
  'kwin': 'KWin',
  'metacity': 'Metacity',
