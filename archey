@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# archey [version 0.1-11]
+# archey [version 0.2.1]
 #
 # Maintained by Melik Manukyan <melik@archlinux.us>
 # Distributed under the terms of the GNU General Public License v3.
@@ -20,7 +20,6 @@ display = [
  'os', # Display Operating System
  'hostname', # Display Machine Hostname
  'kernel',  # Display Kernel Version
-# 'battery', # Display Battery Usage [Requires 'acpi']
  'uptime',  # Display System Uptime
  'wm',  # Display Window Manager
  'de', # Display Desktop Environment
@@ -28,17 +27,15 @@ display = [
  'ram', # Display RAM Usage
  'cpu', # Display CPU Model
  'sh', # Display Current Shell
-# 'fs:/boot', # Display /boot Partition Usage
-# 'fs:/home', # Display /home Partition Usage
-# 'fs:/MOUNT/POINT', # Display * Partition, Edit To Your Needs
- 'fs:/' # Display / Partition Usage
+ 'fs' # Display / Partition Usage
  ]
+
 # Array containing Values
 result = []
 
 # Options
 if __name__=='__main__':
- parser = OptionParser(usage='%prog [-c COLOR] [-s, --screenshot]', description='To customize the info displayed on archey, edit "/usr/bin/archey" directly and look for the display array. Note: Archey can only allow up to 15 fields.', version="%prog 0.1.11")
+ parser = OptionParser(usage='%prog [-c COLOR] [-s, --screenshot]', description='To customize the info displayed on archey, edit "/usr/bin/archey" directly and look for the display array. Note: Archey can only allow up to 15 fields.', version="%prog 0.2.1")
  parser.add_option('-c',
   action='store', default='blue', type='choice', dest='color', choices=('black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white'), help='choose a color: black, red, green, yellow, blue, magenta, cyan, white [Default: blue]')
  parser.add_option('-s', '--screenshot',
@@ -164,12 +161,6 @@ def uptime_display():
  uptime += '%d:%02d' % (hour, minute)
  output('Uptime', uptime)
 
-# Battery Function [Requires: acpi]
-def battery_display(): 
- p1 = Popen(['acpi'], stdout=PIPE).communicate()[0].lstrip()
- battery = p1.split(' ')[3].rstrip('\n')
- output ('Battery', battery)
-
 # Desktop Environment Function 
 def de_display():
  de = 'None found'
@@ -197,35 +188,36 @@ def packages_display():
  output ('Packages', packages)
 
 # File System Function
-def fs_display(mount=''):
- p1 = Popen(['df', '-TPh', mount], stdout=PIPE).communicate()[0]
- used = [line for line in p1.split('\n') if line][1]
- used = used.split()[3]
- total = [line for line in p1.split('\n') if line][1]
- total = total.split()[2]
- type = [line for line in p1.split('\n') if line][1]
- type = type.split()[1]
- if mount == '/': mount = '/root'
- fs = mount.rpartition('/')[2].title() + " FS"
- part = '%s / %s (%s)' % (used, total, type)
- output (fs, part)
+def fs_display():
+ supported = ('ext2', 'ext3', 'ext4', 'reiserfs', 'jfs', 'ntfs', 'fat32')
+ p1 = Popen(['df', '-TPh'], stdout=PIPE).communicate()[0]
+ filesystems = p1.rstrip().split('\n')
+ del filesystems[0]
+
+ for fs in filesystems:
+  fs_split = fs.split()
+  used = fs_split[3]
+  total = fs_split[2]
+  type = fs_split[1]
+  name = fs_split[6]
+  part = '%s / %s (%s)' % (used, total, type)
+  if name == '/': name = '/root'
+  fs = name.rpartition('/')[2].title() + " FS"
+  if type in supported:
+   output (fs, part)
 
 # Run functions found in 'display' array.
 for x in display:
- call = [arg for arg in x.split(':') if arg]
- funcname=call[0] + '_display'
+ funcname=x+'_display'
  func=locals()[funcname]
- if len(call) > 1:
-  func(arg)
- else:
-  func()
+ func()
 
 # Array containing values.
-result.extend(['']*(16 - len(display)))
+result.extend(['']*(17 - len(display)))
 
 ###### Result #######
 print """%s
-%s               +                
+%s               +                %s
 %s               #                %s
 %s              ###               %s
 %s             #####              %s
@@ -242,8 +234,8 @@ print """%s
 %s   ######'           '######    %s
 %s  ;####                 ####;   %s
 %s  ##'                     '##  %s 
-%s #'                         `#  
-%s """ % (color, color, color, result[0], color, result[1], color, result[2], color, result[3], color, result[4], color, result[5], color, result[6], color, color2, color, result[7], color, color2, color, result[8], color, color2, result[9], color2, result[10], color2, result[11], color2, result[12], color2, result[13], color2, result[14], color2, result[15], color2, clear)
+%s #'                         `#  %s
+%s """ % (color, color, result[0], color, result[1], color, result[2], color, result[3], color, result[4], color, result[5], color, result[6], color, result[7], color, color2, color, result[8], color, color2, color, result[9], color, color2, result[10], color2, result[11], color2, result[12], color2, result[13], color2, result[14], color2, result[15], color2, result[16], color2, result[17], clear)
 
 if screen == 'True':
  screenshot()
