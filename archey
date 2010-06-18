@@ -213,7 +213,7 @@ for x in display:
  func()
 
 # Array containing values.
-result.extend(['']*(17 - len(display)))
+result.extend(['']*(19 - len(display)))
 
 ###### Result #######
 print """%s
