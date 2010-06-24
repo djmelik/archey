@@ -165,15 +165,17 @@ def uptime_display():
 def de_display():
  de = 'None found'
  for key in de_dict.keys():
-  if key in processes: de = de_dict[key]
- output ('Desktop Environment', de)
+  if key in processes:
+   de = de_dict[key]
+   output ('Desktop Environment', de)
 
 # Window Manager Function
 def wm_display():
  wm = 'None found'
  for key in wm_dict.keys():
-  if key in processes: wm = wm_dict[key]
- output ('Window Manager', wm)
+  if key in processes:
+   wm = wm_dict[key]
+   output ('Window Manager', wm)
 
 # Shell Function
 def sh_display():
@@ -213,7 +215,7 @@ for x in display:
  func()
 
 # Array containing values.
-result.extend(['']*(19 - len(display)))
+result.extend(['']*(20 - len(display)))
 
 ###### Result #######
 print """%s
