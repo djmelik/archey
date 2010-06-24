@@ -76,6 +76,7 @@ wm_dict = {
  'ratpoison': 'ratpoison',
  'scrotwm': 'ScrotWM',
  'wmaker': 'Window Maker',
+ 'wmfs': 'Wmfs',
  'wmii': 'wmii',
  'xfwm4': 'Xfwm',
  'xmonad': 'xmonad'}
@@ -191,7 +192,7 @@ def packages_display():
 
 # File System Function
 def fs_display():
- supported = ('ext2', 'ext3', 'ext4', 'reiserfs', 'jfs', 'ntfs', 'fat32')
+ supported = ('ext2', 'ext3', 'ext4', 'reiserfs', 'jfs', 'ntfs', 'fat32', 'btrfs')
  p1 = Popen(['df', '-TPh'], stdout=PIPE).communicate()[0]
  filesystems = p1.rstrip().split('\n')
  del filesystems[0]
