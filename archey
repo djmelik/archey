@@ -27,6 +27,7 @@ display = [
  'ram', # Display RAM Usage
  'cpu', # Display CPU Model
  'sh', # Display Current Shell
+ 'term', # Display Current Terminal
  'fs' # Display / Partition Usage
  ]
 
@@ -182,6 +183,11 @@ def wm_display():
 def sh_display():
  sh = os.getenv("SHELL").split('/')[-1].capitalize()
  output ('Shell', sh)
+
+# Terminal Function
+def term_display():
+ term = os.getenv("TERM").split('/')[-1].capitalize()
+ output ('Terminal', term)
 
 # Packages Function
 def packages_display():
