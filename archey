@@ -84,6 +84,17 @@ sh_dict = {
  'jsh': 'Jsh',
  'tcsh': 'Tcsh'}
 
+# Define Color Schemes.
+
+# Arch Linux.
+acolor = '\x1b[1;34m'
+acolor2 = '\x1b[0;34m' 
+
+# Ubuntu.
+ucolor = '\x1b[1;33m'
+ucolor2 = '\x1b[1;31m'
+ucolor3 = '\x1b[0;31m'
+
 # Find running processes.
 def xmonadfix(str):
  if re.compile("xmonad").match(str): return "xmonad"
@@ -92,23 +103,28 @@ p1 = Popen(['ps', '-u', getuser()], stdout=PIPE).communicate()[0].split('\n')
 processes = map(xmonadfix, [process.split()[3] for process in p1 if process])
 p1 = None
 
+# Find Distro.
+DetectUbuntu = Popen(['grep', '-i', 'ubuntu', '/etc/lsb-release'], stdout=PIPE)
+DetectArch = os.path.exists('/etc/arch-release')
+
 # Print coloured key with normal value.
 def output(key, value):
- if Popen(['grep', '-i', 'ubuntu', '/etc/lsb-release'], stdout=PIPE):
+ if DetectUbuntu:
   ucolor = '\x1b[1;31m'
   output ='%s%s:%s %s' % (ucolor, key, clear, value)
- if os.path.exists('/etc/arch-release'):
-  output = '%s%s:%s %s' % (color, key, clear, value)
+ if DetectArch:
+  ucolor = '\x1b[1;34m'
+  output = '%s%s:%s %s' % (acolor, key, clear, value)
  result.append(output)
 
-# RAM Function
+# RAM Function.
 def ram_display():
  raminfo = Popen(['free', '-m'], stdout=PIPE).communicate()[0].split('\n')
  ram = ''.join(filter(re.compile('M').search, raminfo)).split()
  used = int(ram[2]) - int(ram[5]) - int(ram[6])
  output ('RAM', '%s MB / %s MB' % (used, ram[1]))
 
-# Screenshot Function 
+# Screenshot Function.
 screen = '%s' % options.screenshot
 def screenshot():
  print 'Taking shot in',
@@ -121,34 +137,34 @@ def screenshot():
  print 'Say Cheeze!'
  subprocess.check_call(['scrot'])
 
-# Operating System Function
+# Operating System Function.
 def distro_display(): 
  arch = Popen(['uname', '-m'], stdout=PIPE).communicate()[0].rstrip('\n'
  )
  urelease = linecache.getline('/etc/lsb-release', 2).rstrip('\n').split('=')[1].title()
- if Popen(['grep', '-i', 'ubuntu', '/etc/lsb-release'], stdout=PIPE).communicate()[0].rstrip('\n'): 
+ if DetectUbuntu: 
   distro = 'Ubuntu %s %s' % (urelease, arch)
- if os.path.exists('/etc/arch-release'): 
+ if DetectArch: 
   distro = 'Arch Linux %s' % arch 
  output('OS', distro)
 
-# Kernel Function
+# Kernel Function.
 def kernel_display():
  kernel = Popen(['uname', '-r'], stdout=PIPE).communicate()[0].rstrip('\n')
  output ('Kernel', kernel)
 
-# Hostname Function
+# Hostname Function.
 def hostname_display():
  hostname = Popen(['uname', '-n'], stdout=PIPE).communicate()[0].rstrip('\n')
  output ('Hostname', hostname)
 
-# CPU Function
+# CPU Function.
 def cpu_display():
  file = open('/proc/cpuinfo').readlines()
  cpuinfo = re.sub('  +', ' ', file[4].replace('model name\t: ', '').rstrip('\n'))
  output ('CPU', cpuinfo) 
 
-# Uptime Function
+# Uptime Function.
 def uptime_display():
  fuptime = int(open('/proc/uptime').read().split('.')[0])
  day = int(fuptime / 86400)
@@ -164,7 +180,7 @@ def uptime_display():
  uptime += '%d:%02d' % (hour, minute)
  output('Uptime', uptime)
 
-# Desktop Environment Function 
+# Desktop Environment Function.
 def de_display():
  de = 'None found'
  for key in de_dict.keys():
@@ -172,7 +188,7 @@ def de_display():
    de = de_dict[key]
    output ('Desktop Environment', de)
 
-# Window Manager Function
+# Window Manager Function.
 def wm_display():
  wm = 'None found'
  for key in wm_dict.keys():
@@ -180,31 +196,31 @@ def wm_display():
    wm = wm_dict[key]
    output ('Window Manager', wm)
 
-# Shell Function
+# Shell Function.
 def sh_display():
  sh = os.getenv("SHELL").split('/')[-1].capitalize()
  output ('Shell', sh)
 
-# Terminal Function
+# Terminal Function.
 def term_display():
  term = os.getenv("TERM").split('/')[-1].capitalize()
  output ('Terminal', term)
 
-# Packages Function
+# Packages Function.
 def packages_display():
- if Popen(['grep', '-i', 'ubuntu', '/etc/lsb-release'], stdout=PIPE):
+ if DetectUbuntu:
   p1 = Popen(['dpkg', '--get-selections'], stdout=PIPE)
   p2 = Popen(['grep', '-v', 'deinstall'], stdin=p1.stdout, stdout=PIPE)
   p3 = Popen(['wc', '-l'], stdin=p2.stdout, stdout=PIPE)
   packages = p3.communicate()[0].rstrip('\n')
   output ('Packages', packages)
- if os.path.exists('/etc/arch-release'):
+ if DetectArch:
   p1 = Popen(['pacman', '-Q'], stdout=PIPE)
   p2 = Popen(['wc', '-l'], stdin=p1.stdout, stdout=PIPE)
   packages = p2.communicate()[0].rstrip('\n')
   output ('Packages', packages)
 
-# File System Function
+# File System Function.
 def fs_display():
  supported = ('ext2', 'ext3', 'ext4', 'reiserfs', 'jfs', 'ntfs', 'fat32', 'btrfs')
  p1 = Popen(['df', '-TPh'], stdout=PIPE).communicate()[0]
@@ -232,15 +248,8 @@ for x in display:
 # Array containing values.
 result.extend(['']*(20 - len(display)))
 
-###### Result #######
-
-## Ubuntu
-# Colors
-ucolor = '\x1b[1;33m'
-ucolor2 = '\x1b[1;31m'
-ucolor3 = '\x1b[0;31m'
-
-if Popen(['grep', '-i', 'ubuntu', '/etc/lsb-release'], stdout=PIPE):
+# Result.
+if DetectUbuntu:
  print """
 %s                              ++++++           %s
 %s                             ++++++++          %s
@@ -269,13 +278,7 @@ if Popen(['grep', '-i', 'ubuntu', '/etc/lsb-release'], stdout=PIPE):
 %s                              ++++++           
 %s """ % (ucolor3, result[0], ucolor3, result[1], ucolor2, ucolor3, result[2], ucolor2, ucolor3, result[3], ucolor, ucolor2, ucolor3, result[4], ucolor, ucolor2, ucolor3, result[5], ucolor, ucolor2, result[6], ucolor, ucolor2, result[7], ucolor, ucolor2, result[8], ucolor, ucolor2, result[9], ucolor2, ucolor, ucolor2, result[10], ucolor2, ucolor, ucolor2, result[11], ucolor2, ucolor, result[12], ucolor2, ucolor, ucolor3, result[13], ucolor2, ucolor, ucolor3, result[14], ucolor, ucolor3, result[15], ucolor, ucolor3, result[16], ucolor, ucolor3, ucolor, ucolor, ucolor3, ucolor, ucolor3, ucolor, ucolor, ucolor3, ucolor, ucolor3, ucolor, ucolor3, ucolor, ucolor, ucolor, clear)
 
-
-## Arch Linux
-# Colors
-acolor = '\x1b[1;34m'
-acolor2 = '\x1b[0;34m' 
-
-if os.path.exists('/etc/arch-release'):
+if DetectArch:
  print """%s
 %s               +                %s
 %s               #                %s
