@@ -141,8 +141,8 @@ def screenshot():
 def distro_display(): 
  arch = Popen(['uname', '-m'], stdout=PIPE).communicate()[0].rstrip('\n'
  )
- urelease = linecache.getline('/etc/lsb-release', 2).rstrip('\n').split('=')[1].title()
  if DetectUbuntu: 
+  urelease = linecache.getline('/etc/lsb-release', 2).rstrip('\n').split('=')[1].title()
   distro = 'Ubuntu %s %s' % (urelease, arch)
  if DetectArch: 
   distro = 'Arch Linux %s' % arch 
