@@ -41,9 +41,6 @@ if __name__=='__main__':
   action='store_true', dest='screenshot', help='take a screenshot')
  (options, args) = parser.parse_args()
 
-# Clear 
-clear = '\x1b[0m'
-
 # Define processes for identifying Desktop Environmentss, Window Managers, Shells.
 de_dict = {
  'gnome-session': 'GNOME',
@@ -85,6 +82,9 @@ sh_dict = {
  'tcsh': 'Tcsh'}
 
 # Define Color Schemes.
+
+# Clear 
+clear = '\x1b[0m'
 
 # Arch Linux.
 acolor = '\x1b[1;34m'
