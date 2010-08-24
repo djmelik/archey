@@ -104,7 +104,9 @@ processes = map(xmonadfix, [process.split()[3] for process in p1 if process])
 p1 = None
 
 # Find Distro.
-DetectUbuntu = Popen(['grep', '-i', 'ubuntu', '/etc/lsb-release'], stdout=PIPE)
+DetectLsb = os.path.exists('/etc/lsb-release')
+if DetectLsb:
+ DetectUbuntu = Popen(['grep', '-i', 'ubuntu', '/etc/lsb-release'], stdout=PIPE)
 DetectArch = os.path.exists('/etc/arch-release')
 
 # Print coloured key with normal value.
