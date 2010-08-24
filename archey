@@ -3,7 +3,7 @@
 # archey [version 0.2.5]
 #
 # Maintained by Melik Manukyan <melik@archlinux.us>
-# Changes Jérôme Launay <jerome@projet-libre.org>
+# Changes Jerome Launay <jerome@projet-libre.org>
 # Distributed under the terms of the GNU General Public License v3.
 # See http://www.gnu.org/licenses/gpl.txt for the full license text.
 #
@@ -37,7 +37,7 @@ result = []
 
 # Options
 if __name__=='__main__':
- parser = OptionParser(usage='%prog [-s, --screenshot]', description='Archey is a system information tool written in Python.', version="%prog 0.2.4")
+ parser = OptionParser(usage='%prog [-s, --screenshot]', description='Archey is a system information tool written in Python.', version="%prog 0.2.5")
  parser.add_option('-s', '--screenshot',
   action='store_true', dest='screenshot', help='take a screenshot')
  (options, args) = parser.parse_args()
@@ -111,24 +111,22 @@ p1 = None
 # Find Distro.
 DetectUbuntu = os.path.exists('/etc/lsb-release') 
 if DetectUbuntu:
+ DetectDebian = False
  DetectUbuntu = Popen(['grep', '-i', 'ubuntu', '/etc/lsb-release'], stdout=PIPE)
 
 DetectArch = os.path.exists('/etc/arch-release')
 
-DetectDebian = os.path.exists('/etc/debian_version')
-
+if not DetectUbuntu:
+ DetectDebian = os.path.exists('/etc/debian_version')
 
 # Print coloured key with normal value.
 def output(key, value):
  if DetectUbuntu:
-  ucolor = '\x1b[1;31m'
-  output ='%s%s:%s %s' % (ucolor, key, clear, value)
+  output ='%s%s:%s %s' % (ucolor2, key, clear, value)
  if DetectArch:
-  ucolor = '\x1b[1;34m'
   output = '%s%s:%s %s' % (acolor, key, clear, value)
  if DetectDebian:
-  ucolor = '\x1b[1;33m' 
-  output = '%s%s:%s %s' % (acolor, key, clear, value)
+  output = '%s%s:%s %s' % (dcolor, key, clear, value)
  result.append(output)
 
 # RAM Function.
