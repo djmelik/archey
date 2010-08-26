@@ -234,7 +234,7 @@ def packages_display():
 
 # File System Function.
 def fs_display():
- supported = ('ext2', 'ext3', 'ext4', 'reiserfs', 'jfs', 'ntfs', 'fat32', 'btrfs')
+ supported = ('ext2', 'ext3', 'ext4', 'reiserfs', 'jfs', 'ntfs', 'fat32', 'btrfs'. 'fuseblk')
  p1 = Popen(['df', '-TPh'], stdout=PIPE).communicate()[0]
  filesystems = p1.rstrip().split('\n')
  del filesystems[0]
