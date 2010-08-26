@@ -94,7 +94,7 @@ acolor2 = '\x1b[0;34m'
 # Ubuntu.
 ucolor = '\x1b[1;33m'
 ucolor2 = '\x1b[1;31m'
-ucolor3 = '\x1b[0;31m'
+ucolor3 = '\x1b[0;31m' 
 
 # Debian
 dcolor = '\x1b[1;31m'
@@ -109,23 +109,15 @@ processes = map(xmonadfix, [process.split()[3] for process in p1 if process])
 p1 = None
 
 # Find Distro.
-DetectUbuntu = os.path.exists('/etc/lsb-release') 
-if DetectUbuntu:
- DetectDebian = False
- DetectUbuntu = Popen(['grep', '-i', 'ubuntu', '/etc/lsb-release'], stdout=PIPE)
-
-DetectArch = os.path.exists('/etc/arch-release')
-
-if not DetectUbuntu:
- DetectDebian = os.path.exists('/etc/debian_version')
+DetectDistro = Popen(['lsb_release', '-i'], stdout=PIPE).communicate()[0].split(':')[1].lstrip('\t').rstrip('\n')
 
 # Print coloured key with normal value.
 def output(key, value):
- if DetectUbuntu:
+ if DetectDistro == 'Ubuntu':
   output ='%s%s:%s %s' % (ucolor2, key, clear, value)
- if DetectArch:
+ if DetectDistro == 'Arch':
   output = '%s%s:%s %s' % (acolor, key, clear, value)
- if DetectDebian:
+ if DetectDistro == 'Debian':
   output = '%s%s:%s %s' % (dcolor, key, clear, value)
  result.append(output)
 
@@ -152,13 +144,13 @@ def screenshot():
 # Operating System Function.
 def distro_display(): 
  arch = Popen(['uname', '-m'], stdout=PIPE).communicate()[0].rstrip('\n')
- if DetectUbuntu: 
-  urelease = linecache.getline('/etc/lsb-release', 2).rstrip('\n').split('=')[1].title()
-  distro = 'Ubuntu %s %s' % (urelease, arch)
- if DetectDebian:
+ if DetectDistro == 'Debian':
   urelease = linecache.getline('/etc/debian_version', 1).rstrip('\n')
   distro = 'Debian %s %s' % (urelease, arch)
- if DetectArch: 
+ if DetectDistro == 'Ubuntu':
+  urelease = linecache.getline('/etc/lsb-release', 2).rstrip('\n').split('=')[1].title()
+  distro = 'Ubuntu %s %s' % (urelease, arch)
+ if DetectDistro == 'Arch':
   distro = 'Arch Linux %s' % arch 
  output('OS', distro)
 
@@ -222,18 +214,18 @@ def term_display():
 
 # Packages Function.
 def packages_display():
- if DetectUbuntu:
+ if DetectDistro == 'Ubuntu':
   p1 = Popen(['dpkg', '--get-selections'], stdout=PIPE)
   p2 = Popen(['grep', '-v', 'deinstall'], stdin=p1.stdout, stdout=PIPE)
   p3 = Popen(['wc', '-l'], stdin=p2.stdout, stdout=PIPE)
   packages = p3.communicate()[0].rstrip('\n')
   output ('Packages', packages)
- if DetectArch:
+ if DetectDistro == 'Arch':
   p1 = Popen(['pacman', '-Q'], stdout=PIPE)
   p2 = Popen(['wc', '-l'], stdin=p1.stdout, stdout=PIPE)
   packages = p2.communicate()[0].rstrip('\n')
   output ('Packages', packages)
- if DetectDebian:
+ if DetectDistro == 'Debian':
   p1 = Popen(['dpkg', '--get-selections'], stdout=PIPE)
   p2 = Popen(['grep', '-v', 'deinstall'], stdin=p1.stdout, stdout=PIPE)
   p3 = Popen(['wc', '-l'], stdin=p2.stdout, stdout=PIPE)
@@ -269,36 +261,31 @@ for x in display:
 result.extend(['']*(20 - len(display)))
 
 # Result.
-if DetectUbuntu:
+if DetectDistro == 'Ubuntu':
  print """
-%s                              ++++++           %s
-%s                             ++++++++          %s
-%s                  ++++++++++ %s++++++++          %s 
-%s                ++++++++++++ %s++++++++          %s
-%s             ++  %s++++++++++++ %s++++++           %s
-%s           +++++  %s++++++++++++ %s****            %s
-%s          +++++++  %s+++++++++++++++++++         %s
-%s         +++++++++          %s+++++++++++        %s
-%s        ++++++++++            %s++++++++++       %s
-%s        ++++++++               %s++++++++++      %s
-%s  ++++++ %s++++++                 %s++++++++++     %s
-%s ++++++++ %s+++++                  %s+++++++++     %s
-%s +++++++++ %s++++                                %s
-%s ++++++++ %s+++++                  %s+++++++++     %s
-%s  ++++++ %s++++++                 %s++++++++++     %s
-%s        ++++++++               %s++++++++++      %s
-%s        +++++++++             %s++++++++++       %s
-%s         +++++++++         %s++++++++++++        %s
-%s          +++++++  %s+++++++++++++++++++         
-%s           +++++  %s++++++++++++ %s,,,,            
-%s             ++  %s++++++++++++ %s++++++           
-%s                ++++++++++++ %s++++++++          
-%s                  ++++++++++ %s++++++++          
-%s                             ++++++++          
-%s                              ++++++           
-%s """ % (ucolor3, result[0], ucolor3, result[1], ucolor2, ucolor3, result[2], ucolor2, ucolor3, result[3], ucolor, ucolor2, ucolor3, result[4], ucolor, ucolor2, ucolor3, result[5], ucolor, ucolor2, result[6], ucolor, ucolor2, result[7], ucolor, ucolor2, result[8], ucolor, ucolor2, result[9], ucolor2, ucolor, ucolor2, result[10], ucolor2, ucolor, ucolor2, result[11], ucolor2, ucolor, result[12], ucolor2, ucolor, ucolor3, result[13], ucolor2, ucolor, ucolor3, result[14], ucolor, ucolor3, result[15], ucolor, ucolor3, result[16], ucolor, ucolor3, ucolor, ucolor, ucolor3, ucolor, ucolor3, ucolor, ucolor, ucolor3, ucolor, ucolor3, ucolor, ucolor3, ucolor, ucolor, ucolor, clear)
+%s                          .oyhhs:   %s
+%s                 ..--.., %sshhhhhh-   %s
+%s               -+++++++++`:%syyhhyo`  %s
+%s          .--  %s-++++++++/-.-%s::-`    %s
+%s        .::::-   %s:-----:/+++/++/.   %s
+%s       -:::::-.          %s.:++++++:  %s
+%s  ,,, %s.:::::-`             %s.++++++- %s
+%s./+++/-%s`-::-                %s./////: %s
+%s+++++++ %s.::-                        %s
+%s./+++/-`%s-::-                %s:yyyyyo %s
+%s  ``` `%s-::::-`             %s:yhhhhh: %s
+%s       -:::::-.         %s`-ohhhhhh+  %s
+%s        .::::-` %s-o+///+oyhhyyyhy:   %s
+%s         `.--  %s/yhhhhhhhy+%s,....     %s
+%s               /hhhhhhhhh%s-.-:::;    %s
+%s               `.:://::- %s-:::::;    %s
+%s                         `.-:-'     %s
+%s                                    %s
+%s""" % ( ucolor3, result[0], ucolor2, ucolor3, result[1], ucolor2, ucolor3, result[2], ucolor, ucolor2, ucolor3, result[3], ucolor, ucolor2, result[4], ucolor, ucolor2, result[5], 
+ucolor2, ucolor, ucolor2, result[6], ucolor2, ucolor, ucolor2, result[7], ucolor2, ucolor, result[8], ucolor2, ucolor, ucolor3, result[9], ucolor2, ucolor, ucolor3, result[10], 
+ucolor, ucolor3, result[11], ucolor, ucolor3, result[12], ucolor, ucolor3, ucolor, result[13], ucolor3, ucolor, result[14], ucolor3, ucolor, result[15], ucolor, result[16], ucolor, result[17], clear )
 
-if DetectArch:
+if DetectDistro == 'Arch':
  print """%s
 %s               +                %s
 %s               #                %s
@@ -320,7 +307,7 @@ if DetectArch:
 %s #'                         `#  %s
 %s """ % (acolor, acolor, result[0], acolor, result[1], acolor, result[2], acolor, result[3], acolor, result[4], acolor, result[5], acolor, result[6], acolor, result[7], acolor, acolor2, acolor, result[8], acolor, acolor2, acolor, result[9], acolor, acolor2, result[10], acolor2, result[11], acolor2, result[12], acolor2, result[13], acolor2, result[14], acolor2, result[15], acolor2, result[16], acolor2, result[17], clear)
 
-if DetectDebian:
+if DetectDistro == 'Debian':
  print """%s
 %s                                  %s
 %s          _sudZUZ#Z#XZo=_         %s
