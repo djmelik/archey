@@ -171,7 +171,7 @@ def distro_display():
   distro = 'Fedora %s %s' % (release, arch) 
  if DetectDistro == 'CrunchBang':
   release = Popen(['lsb_release', '-r'], stdout=PIPE).communicate()[0].split(':')[1].lstrip('\t').rstrip('\n')
-  distro = 'Fedora %s %s' % (release, arch)
+  distro = 'CrunchBang %s %s' % (release, arch)
 
  output('OS', distro)
 
@@ -381,10 +381,7 @@ if DetectDistro == 'Fedora':
 %s :------%s:://:%s-----------://         %s
 %s :--------------------://           %s
 %s                                    %s
-%s """ % ( fcolor3, result[0], fcolor3, result[1], fcolor3, fcolor, fcolor3, result[2], fcolor3, fcolor, fcolor3, result[3], fcolor3, fcolor, fcolor3, result[4], fcolor3, fcolor, fcolor3, result[5], 
-fcolor3, fcolor, fcolor3, result[6], fcolor3, fcolor, fcolor3, result[7], fcolor3, fcolor, fcolor3, result[8], fcolor3, fcolor, fcolor3, result[9], fcolor3, fcolor, fcolor3, result[10], 
-fcolor3, fcolor, fcolor3, result[11], fcolor3, fcolor, fcolor3, result[12], fcolor3, fcolor, fcolor3, result[13], fcolor3, fcolor, fcolor3, result[14], fcolor3, fcolor, fcolor3, result[15], 
-fcolor3, result[16], fcolor3, result[17], clear )
+%s """ % ( fcolor3, result[0], fcolor3, result[1], fcolor3, fcolor, fcolor3, result[2], fcolor3, fcolor, fcolor3, result[3], fcolor3, fcolor, fcolor3, result[4], fcolor3, fcolor, fcolor3, result[5], fcolor3, fcolor, fcolor3, result[6], fcolor3, fcolor, fcolor3, result[7], fcolor3, fcolor, fcolor3, result[8], fcolor3, fcolor, fcolor3, result[9], fcolor3, fcolor, fcolor3, result[10], fcolor3, fcolor, fcolor3, result[11], fcolor3, fcolor, fcolor3, result[12], fcolor3, fcolor, fcolor3, result[13], fcolor3, fcolor, fcolor3, result[14], fcolor3, fcolor, fcolor3, result[15], fcolor3, result[16], fcolor3, result[17], clear )
 
 if DetectDistro == 'CrunchBang':
  print """                               
@@ -407,5 +404,6 @@ if DetectDistro == 'CrunchBang':
 %s                                      %s
 %s                                      %s
 %s""" % ( ccolor, result[0], ccolor, result[1], ccolor, result[2], ccolor, result[3], ccolor, result[4], ccolor, result[5], ccolor, result[6], ccolor, result[7], ccolor, result[8], ccolor, result[9], ccolor, result[10], ccolor, result[11], ccolor, result[12], ccolor, result[13], ccolor, result[14], ccolor, result[15], ccolor, result[16], ccolor, result[17], clear )                                    
+
 if screen == 'True':
  screenshot()
