@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 #
-# archey [version 0.2.5]
+# archey [version 0.2.6]
 #
 # Maintained by Melik Manukyan <melik@archlinux.us>
+# ASCII art by Brett Bohnenkamper <kittykatt@silverirc.com>
 # Changes Jerome Launay <jerome@projet-libre.org>
+# Fedora support by YeOK < >
 # Distributed under the terms of the GNU General Public License v3.
 # See http://www.gnu.org/licenses/gpl.txt for the full license text.
-#
 # System information tool for Archlinux written in python.
 
 # Import libraries
@@ -37,7 +38,7 @@ result = []
 
 # Options
 if __name__=='__main__':
- parser = OptionParser(usage='%prog [-s, --screenshot]', description='Archey is a system information tool written in Python.', version="%prog 0.2.5")
+ parser = OptionParser(usage='%prog [-s, --screenshot]', description='Archey is a system information tool written in Python.', version="%prog 0.2.6")
  parser.add_option('-s', '--screenshot',
   action='store_true', dest='screenshot', help='take a screenshot')
  (options, args) = parser.parse_args()
@@ -100,6 +101,11 @@ ucolor3 = '\x1b[0;31m'
 dcolor = '\x1b[1;31m'
 dcolor2 = '\x1b[0;31m'
 
+# Fedora 
+fcolor = '\x1b[1;37m'
+fcolor2 = '\x1b[1;34m'
+fcolor3 = '\x1b[0;34m'
+
 # Find running processes.
 def xmonadfix(str):
  if re.compile("xmonad").match(str): return "xmonad"
@@ -119,6 +125,8 @@ def output(key, value):
   output = '%s%s:%s %s' % (acolor, key, clear, value)
  if DetectDistro == 'Debian':
   output = '%s%s:%s %s' % (dcolor, key, clear, value)
+ if DetectDistro == 'Fedora':
+  output = '%s%s:%s %s' % (fcolor2, key, clear, value)
  result.append(output)
 
 # RAM Function.
@@ -145,13 +153,16 @@ def screenshot():
 def distro_display(): 
  arch = Popen(['uname', '-m'], stdout=PIPE).communicate()[0].rstrip('\n')
  if DetectDistro == 'Debian':
-  urelease = linecache.getline('/etc/debian_version', 1).rstrip('\n')
-  distro = 'Debian %s %s' % (urelease, arch)
+  release = Popen(['lsb_release', '-r'], stdout=PIPE).communicate()[0].split(':')[1].lstrip('\t').rstrip('\n')
+  distro = 'Debian %s %s' % (release, arch)
  if DetectDistro == 'Ubuntu':
-  urelease = linecache.getline('/etc/lsb-release', 2).rstrip('\n').split('=')[1].title()
-  distro = 'Ubuntu %s %s' % (urelease, arch)
+  release = Popen(['lsb_release', '-r'], stdout=PIPE).communicate()[0].split(':')[1].lstrip('\t').rstrip('\n')
+  distro = 'Ubuntu %s %s' % (release, arch)
  if DetectDistro == 'Arch':
   distro = 'Arch Linux %s' % arch 
+ if DetectDistro == 'Fedora':
+  release = Popen(['lsb_release', '-r'], stdout=PIPE).communicate()[0].split(':')[1].lstrip('\t').rstrip('\n')
+  distro = 'Fedora %s %s' % (release, arch)
  output('OS', distro)
 
 # Kernel Function.
@@ -229,6 +240,11 @@ def packages_display():
   p1 = Popen(['dpkg', '--get-selections'], stdout=PIPE)
   p2 = Popen(['grep', '-v', 'deinstall'], stdin=p1.stdout, stdout=PIPE)
   p3 = Popen(['wc', '-l'], stdin=p2.stdout, stdout=PIPE)
+  packages = p3.communicate()[0].rstrip('\n')
+  output ('Packages', packages)
+ if DetectDistro == 'Fedora':
+  p1 = Popen(['rpm', '-qa'], stdout=PIPE)
+  p2 = Popen(['wc', '-l'], stdin=p1.stdout, stdout=PIPE)
   packages = p3.communicate()[0].rstrip('\n')
   output ('Packages', packages)
 
@@ -327,8 +343,31 @@ if DetectDistro == 'Debian':
 %s         -)SSL,,                  %s
 %s            ~~~~~                 %s
 %s                                  %s
-%s """ %(dcolor, dcolor, result[0], dcolor, result[1], dcolor, result[2], dcolor, result[3], dcolor, result[4], dcolor, result[5], dcolor, result[6], dcolor, result[7], dcolor, result[8], dcolor2, result[9], dcolor2, result[10], dcolor2, result[11], dcolor2, result[12], dcolor2, result[13], dcolor2, result[14], dcolor2, result[15], dcolor2, result[16], dcolor2, result[17], clear) 
+%s """ % (dcolor, dcolor, result[0], dcolor, result[1], dcolor, result[2], dcolor, result[3], dcolor, result[4], dcolor, result[5], dcolor, result[6], dcolor, result[7], dcolor, result[8], dcolor2, result[9], dcolor2, result[10], dcolor2, result[11], dcolor2, result[12], dcolor2, result[13], dcolor2, result[14], dcolor2, result[15], dcolor2, result[16], dcolor2, result[17], clear) 
 
-
+if DetectDistro == 'Fedora':
+ print """
+%s           :/------------://        %s
+%s        :------------------://      %s
+%s      :-----------%s/shhdhyo/%s-://     %s
+%s    /-----------%somMMMNNNMMMd/%s-:/    %s
+%s   :-----------%ssMMMdo:/%s       -:/   %s
+%s  :-----------%s:MMMd%s-------    --:/  %s
+%s  /-----------%s:MMMy%s-------    ---/  %s
+%s :------    --%s/+MMMh/%s--        ---: %s 
+%s :---     %soNMMMMMMMMMNho%s     -----: %s
+%s :--      %s+shhhMMMmhhy++%s   ------:  %s
+%s :-      -----%s:MMMy%s--------------/  %s
+%s :-     ------%s/MMMy%s-------------:   %s
+%s :-      ----%s/hMMM+%s------------:    %s
+%s :--%s:dMMNdhhdNMMNo%s-----------:      %s
+%s :---%s:sdNMMMMNds:%s----------:        %s
+%s :------%s:://:%s-----------://         %s
+%s :--------------------://           %s
+%s                                    %s
+%s """ % ( fcolor3, result[0], fcolor3, result[1], fcolor3, fcolor, fcolor3, result[2], fcolor3, fcolor, fcolor3, result[3], fcolor3, fcolor, fcolor3, result[4], fcolor3, fcolor, fcolor3, result[5], 
+fcolor3, fcolor, fcolor3, result[6], fcolor3, fcolor, fcolor3, result[7], fcolor3, fcolor, fcolor3, result[8], fcolor3, fcolor, fcolor3, result[9], fcolor3, fcolor, fcolor3, result[10], 
+fcolor3, fcolor, fcolor3, result[11], fcolor3, fcolor, fcolor3, result[12], fcolor3, fcolor, fcolor3, result[13], fcolor3, fcolor, fcolor3, result[14], fcolor3, fcolor, fcolor3, result[15], 
+fcolor3, result[16], fcolor3, result[17], clear )
 if screen == 'True':
  screenshot()
