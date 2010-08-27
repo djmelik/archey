@@ -5,7 +5,7 @@
 # Maintained by Melik Manukyan <melik@archlinux.us>
 # ASCII art by Brett Bohnenkamper <kittykatt@silverirc.com>
 # Changes Jerome Launay <jerome@projet-libre.org>
-# Fedora support by YeOK < >
+# Fedora support by YeOK <yeok@henpen.org>
 # Distributed under the terms of the GNU General Public License v3.
 # See http://www.gnu.org/licenses/gpl.txt for the full license text.
 # System information tool for Archlinux written in python.
@@ -106,6 +106,10 @@ fcolor = '\x1b[1;37m'
 fcolor2 = '\x1b[1;34m'
 fcolor3 = '\x1b[0;34m'
 
+# CrunchBang
+ccolor = '\x1b[0;37m'
+ccolor2 = '\x1b[1;37m'
+
 # Find running processes.
 def xmonadfix(str):
  if re.compile("xmonad").match(str): return "xmonad"
@@ -127,6 +131,8 @@ def output(key, value):
   output = '%s%s:%s %s' % (dcolor, key, clear, value)
  if DetectDistro == 'Fedora':
   output = '%s%s:%s %s' % (fcolor2, key, clear, value)
+ if DetectDistro == 'CrunchBang':
+  output = '%s%s:%s %s' % (ccolor, key, clear, value)
  result.append(output)
 
 # RAM Function.
@@ -162,7 +168,11 @@ def distro_display():
   distro = 'Arch Linux %s' % arch 
  if DetectDistro == 'Fedora':
   release = Popen(['lsb_release', '-r'], stdout=PIPE).communicate()[0].split(':')[1].lstrip('\t').rstrip('\n')
+  distro = 'Fedora %s %s' % (release, arch) 
+ if DetectDistro == 'CrunchBang':
+  release = Popen(['lsb_release', '-r'], stdout=PIPE).communicate()[0].split(':')[1].lstrip('\t').rstrip('\n')
   distro = 'Fedora %s %s' % (release, arch)
+
  output('OS', distro)
 
 # Kernel Function.
@@ -242,10 +252,16 @@ def packages_display():
   p3 = Popen(['wc', '-l'], stdin=p2.stdout, stdout=PIPE)
   packages = p3.communicate()[0].rstrip('\n')
   output ('Packages', packages)
+ if DetectDistro == 'CrunchBang':
+  p1 = Popen(['dpkg', '--get-selections'], stdout=PIPE)
+  p2 = Popen(['grep', '-v', 'deinstall'], stdin=p1.stdout, stdout=PIPE)
+  p3 = Popen(['wc', '-l'], stdin=p2.stdout, stdout=PIPE)
+  packages = p3.communicate()[0].rstrip('\n')
+  output ('Packages', packages)
  if DetectDistro == 'Fedora':
   p1 = Popen(['rpm', '-qa'], stdout=PIPE)
   p2 = Popen(['wc', '-l'], stdin=p1.stdout, stdout=PIPE)
-  packages = p3.communicate()[0].rstrip('\n')
+  packages = p2.communicate()[0].rstrip('\n')
   output ('Packages', packages)
 
 # File System Function.
@@ -369,5 +385,27 @@ if DetectDistro == 'Fedora':
 fcolor3, fcolor, fcolor3, result[6], fcolor3, fcolor, fcolor3, result[7], fcolor3, fcolor, fcolor3, result[8], fcolor3, fcolor, fcolor3, result[9], fcolor3, fcolor, fcolor3, result[10], 
 fcolor3, fcolor, fcolor3, result[11], fcolor3, fcolor, fcolor3, result[12], fcolor3, fcolor, fcolor3, result[13], fcolor3, fcolor, fcolor3, result[14], fcolor3, fcolor, fcolor3, result[15], 
 fcolor3, result[16], fcolor3, result[17], clear )
+
+if DetectDistro == 'CrunchBang':
+ print """                               
+%s                ___       ___      _  %s
+%s               /  /      /  /     | | %s
+%s              /  /      /  /      | | %s
+%s             /  /      /  /       | | %s
+%s     _______/  /______/  /______  | | %s
+%s    /______   _______   _______/  | | %s
+%s          /  /      /  /          | | %s
+%s         /  /      /  /           | | %s
+%s        /  /      /  /            | | %s
+%s ______/  /______/  /______       | | %s
+%s/_____   _______   _______/       | | %s
+%s     /  /      /  /               | | %s
+%s    /  /      /  /                |_| %s
+%s   /  /      /  /                  _  %s
+%s  /  /      /  /                  | | %s 
+%s /__/      /__/                   |_| %s
+%s                                      %s
+%s                                      %s
+%s""" % ( ccolor, result[0], ccolor, result[1], ccolor, result[2], ccolor, result[3], ccolor, result[4], ccolor, result[5], ccolor, result[6], ccolor, result[7], ccolor, result[8], ccolor, result[9], ccolor, result[10], ccolor, result[11], ccolor, result[12], ccolor, result[13], ccolor, result[14], ccolor, result[15], ccolor, result[16], ccolor, result[17], clear )                                    
 if screen == 'True':
  screenshot()
