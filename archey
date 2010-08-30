@@ -1,14 +1,16 @@
 #!/usr/bin/env python
 #
-# archey [version 0.2.6]
+# Archey [version 0.2.7]
+#
+# Archey is a system information tool written in Python.
 #
 # Maintained by Melik Manukyan <melik@archlinux.us>
 # ASCII art by Brett Bohnenkamper <kittykatt@silverirc.com>
 # Changes Jerome Launay <jerome@projet-libre.org>
 # Fedora support by YeOK <yeok@henpen.org>
+
 # Distributed under the terms of the GNU General Public License v3.
 # See http://www.gnu.org/licenses/gpl.txt for the full license text.
-# System information tool for Archlinux written in python.
 
 # Import libraries
 import os, sys, subprocess, optparse, re, linecache
@@ -38,7 +40,7 @@ result = []
 
 # Options
 if __name__=='__main__':
- parser = OptionParser(usage='%prog [-s, --screenshot]', description='Archey is a system information tool written in Python.', version="%prog 0.2.6")
+ parser = OptionParser(usage='%prog [-s, --screenshot]', description='Archey is a system information tool written in Python.', version="%prog 0.2.7")
  parser.add_option('-s', '--screenshot',
   action='store_true', dest='screenshot', help='take a screenshot')
  (options, args) = parser.parse_args()
@@ -110,6 +112,10 @@ fcolor3 = '\x1b[0;34m'
 ccolor = '\x1b[0;37m'
 ccolor2 = '\x1b[1;37m'
 
+# Mint
+mcolor = '\x1b[1;37m'
+mcolor2 = '\x1b[1;32m'
+
 # Find running processes.
 def xmonadfix(str):
  if re.compile("xmonad").match(str): return "xmonad"
@@ -133,6 +139,8 @@ def output(key, value):
   output = '%s%s:%s %s' % (fcolor2, key, clear, value)
  if DetectDistro == 'CrunchBang':
   output = '%s%s:%s %s' % (ccolor, key, clear, value)
+ if DetectDistro == 'LinuxMint':
+  output = '%s%s:%s %s' % (mcolor2, key, clear, value) 
  result.append(output)
 
 # RAM Function.
@@ -171,8 +179,9 @@ def distro_display():
   distro = 'Fedora %s %s' % (release, arch) 
  if DetectDistro == 'CrunchBang':
   release = Popen(['lsb_release', '-r'], stdout=PIPE).communicate()[0].split(':')[1].lstrip('\t').rstrip('\n')
-  distro = 'CrunchBang %s %s' % (release, arch)
-
+ if DetectDistro == 'LinuxMint':
+  release = Popen(['lsb_release', '-r'], stdout=PIPE).communicate()[0].split(':')[1].lstrip('\t').rstrip('\n')
+  distro = 'Mint %s %s' % (release, arch)
  output('OS', distro)
 
 # Kernel Function.
@@ -262,6 +271,11 @@ def packages_display():
   p1 = Popen(['rpm', '-qa'], stdout=PIPE)
   p2 = Popen(['wc', '-l'], stdin=p1.stdout, stdout=PIPE)
   packages = p2.communicate()[0].rstrip('\n')
+ if DetectDistro == 'LinuxMint':
+  p1 = Popen(['dpkg', '--get-selections'], stdout=PIPE)
+  p2 = Popen(['grep', '-v', 'deinstall'], stdin=p1.stdout, stdout=PIPE)
+  p3 = Popen(['wc', '-l'], stdin=p2.stdout, stdout=PIPE)
+  packages = p3.communicate()[0].rstrip('\n')
   output ('Packages', packages)
 
 # File System Function.
@@ -313,9 +327,7 @@ if DetectDistro == 'Ubuntu':
 %s               `.:://::- %s-:::::;    %s
 %s                         `.-:-'     %s
 %s                                    %s
-%s""" % ( ucolor3, result[0], ucolor2, ucolor3, result[1], ucolor2, ucolor3, result[2], ucolor, ucolor2, ucolor3, result[3], ucolor, ucolor2, result[4], ucolor, ucolor2, result[5], 
-ucolor2, ucolor, ucolor2, result[6], ucolor2, ucolor, ucolor2, result[7], ucolor2, ucolor, result[8], ucolor2, ucolor, ucolor3, result[9], ucolor2, ucolor, ucolor3, result[10], 
-ucolor, ucolor3, result[11], ucolor, ucolor3, result[12], ucolor, ucolor3, ucolor, result[13], ucolor3, ucolor, result[14], ucolor3, ucolor, result[15], ucolor, result[16], ucolor, result[17], clear )
+%s""" % ( ucolor3, result[0], ucolor2, ucolor3, result[1], ucolor2, ucolor3, result[2], ucolor, ucolor2, ucolor3, result[3], ucolor, ucolor2, result[4], ucolor, ucolor2, result[5], ucolor2, ucolor, ucolor2, result[6], ucolor2, ucolor, ucolor2, result[7], ucolor2, ucolor, result[8], ucolor2, ucolor, ucolor3, result[9], ucolor2, ucolor, ucolor3, result[10], ucolor, ucolor3, result[11], ucolor, ucolor3, result[12], ucolor, ucolor3, ucolor, result[13], ucolor3, ucolor, result[14], ucolor3, ucolor, result[15], ucolor, result[16], ucolor, result[17], clear )
 
 if DetectDistro == 'Arch':
  print """%s
@@ -336,8 +348,7 @@ if DetectDistro == 'Arch':
 %s   ######'           '######    %s
 %s  ;####                 ####;   %s
 %s  ##'                     '##  %s 
-%s #'                         `#  %s
-%s """ % (acolor, acolor, result[0], acolor, result[1], acolor, result[2], acolor, result[3], acolor, result[4], acolor, result[5], acolor, result[6], acolor, result[7], acolor, acolor2, acolor, result[8], acolor, acolor2, acolor, result[9], acolor, acolor2, result[10], acolor2, result[11], acolor2, result[12], acolor2, result[13], acolor2, result[14], acolor2, result[15], acolor2, result[16], acolor2, result[17], clear)
+%s #'                         `#  %s%s """ % (acolor, acolor, result[0], acolor, result[1], acolor, result[2], acolor, result[3], acolor, result[4], acolor, result[5], acolor, result[6], acolor, result[7], acolor, acolor2, acolor, result[8], acolor, acolor2, acolor, result[9], acolor, acolor2, result[10], acolor2, result[11], acolor2, result[12], acolor2, result[13], acolor2, result[14], acolor2, result[15], acolor2, result[16], acolor2, result[17], clear)
 
 if DetectDistro == 'Debian':
  print """%s
@@ -404,6 +415,26 @@ if DetectDistro == 'CrunchBang':
 %s                                      %s
 %s                                      %s
 %s""" % ( ccolor, result[0], ccolor, result[1], ccolor, result[2], ccolor, result[3], ccolor, result[4], ccolor, result[5], ccolor, result[6], ccolor, result[7], ccolor, result[8], ccolor, result[9], ccolor, result[10], ccolor, result[11], ccolor, result[12], ccolor, result[13], ccolor, result[14], ccolor, result[15], ccolor, result[16], ccolor, result[17], clear )                                    
+if DetectDistro == 'LinuxMint':
+ print """%s                                     %s
+%s MMMMMMMMMMMMMMMMMMMMMMMMMmds+.      %s
+%s MMm----::-://////////////oymNMd+`   %s
+%s MMd      %s/++                %s-sNMd:  %s
+%s MMNso/`  %sdMM    `.::-. .-::.` %s.hMN: %s
+%s ddddMMh  %sdMM   :hNMNMNhNMNMNh: `%sNMm %s
+%s     NMm  %sdMM  .NMN/-+MMM+-/NMN` %sdMM %s
+%s     NMm  %sdMM  -MMm  `MMM   dMM. %sdMM %s
+%s     NMm  %sdMM  -MMm  `MMM   dMM. %sdMM %s
+%s     NMm  %sdMM  .mmd  `mmm   yMM. %sdMM %s
+%s     NMm  %sdMM`  ..`   ...   ydm. %sdMM %s
+%s     hMM-  %s+MMd/-------...-:sdds %sMMM %s
+%s     -NMm-  %s:hNMNNNmdddddddddy/` %sdMM %s
+%s      -dMNs-``%s-::::-------.``    %sdMM %s
+%s       `/dMNmy+/:-------------:/yMMM %s
+%s          ./ydNMMMMMMMMMMMMMMMMMMMMM %s
+%s                                     %s
+%s                                     %s
+%s""" % ( mcolor, result[0], mcolor, result[1], mcolor, result[2], mcolor, mcolor2, mcolor, result[3], mcolor, mcolor2, mcolor, result[4], mcolor, mcolor2, mcolor, result[5], mcolor, mcolor2, mcolor, result[6], mcolor, mcolor2, mcolor, result[7], mcolor, mcolor2, mcolor, result[8], mcolor, mcolor2, mcolor, result[9], mcolor, mcolor2, mcolor, result[10], mcolor, mcolor2, mcolor, result[11], mcolor, mcolor2, mcolor, result[12], mcolor, mcolor2, mcolor, result[13], mcolor, result[14], mcolor, result[15], mcolor, result[16], mcolor, result[17], clear )
 
 if screen == 'True':
  screenshot()
