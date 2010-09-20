@@ -49,7 +49,7 @@ if __name__=='__main__':
 de_dict = {
  'gnome-session': 'GNOME',
  'ksmserver': 'KDE',
- 'xfconfd': 'Xfce'}
+ 'xfce4-session': 'Xfce'}
            
 wm_dict = {
  'awesome': 'Awesome',
@@ -415,6 +415,7 @@ if DetectDistro == 'CrunchBang':
 %s                                      %s
 %s                                      %s
 %s""" % ( ccolor, result[0], ccolor, result[1], ccolor, result[2], ccolor, result[3], ccolor, result[4], ccolor, result[5], ccolor, result[6], ccolor, result[7], ccolor, result[8], ccolor, result[9], ccolor, result[10], ccolor, result[11], ccolor, result[12], ccolor, result[13], ccolor, result[14], ccolor, result[15], ccolor, result[16], ccolor, result[17], clear )                                    
+
 if DetectDistro == 'LinuxMint':
  print """%s                                     %s
 %s MMMMMMMMMMMMMMMMMMMMMMMMMmds+.      %s
