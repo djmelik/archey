@@ -289,7 +289,7 @@ def disk_display():
  if usedpercentage <= 33:
   fs = '%s%s %s/ %s' % (greenB, used, clear, size)  
   output ('Disk', fs) 
- if usedpercentage > 33 < 67:
+ if usedpercentage > 33 and usedpercentage < 67:
   fs = '%s%s %s/ %s' % (yellowB, used, clear, size)  
   output ('Disk', fs) 
  if usedpercentage >= 67:
