@@ -143,7 +143,7 @@ def ram_display():
   ramdisplay = '%s%s MB %s/ %s MB' % (greenB, used, clear, ram[1])
   output('RAM', ramdisplay)
  if usedpercent > 33 and usedpercent < 67:
-  ramdisplay = '%s%s MB %s/ %s MB' % (whiteB, used, clear, ram[1])
+  ramdisplay = '%s%s MB %s/ %s MB' % (yellowB, used, clear, ram[1])
   output('RAM', ramdisplay)
  if usedpercent >= 67:
   ramdisplay = '%s%s MB %s/ %s MB' % (redB, used, clear, ram[1])
