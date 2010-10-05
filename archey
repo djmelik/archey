@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Archey [version 0.2.7]
+# Archey [version 0.2.8]
 #
 # Archey is a system information tool written in Python.
 #
@@ -21,8 +21,9 @@ from time import ctime, sleep
 
 # Display [Comment/Uncomment to Enable/Disable information.]
 display = [
- 'distro', # Display Distribution
+ 'user', # Display Username
  'hostname', # Display Machine Hostname
+ 'distro', # Display Distribution
  'kernel',  # Display Kernel Version
  'uptime',  # Display System Uptime
  'wm',  # Display Window Manager
@@ -32,7 +33,7 @@ display = [
  'cpu', # Display CPU Model
  'sh', # Display Current Shell
  'term', # Display Current Terminal
- 'fs' # Display / Partition Usage
+ 'disk' # Display / Partition Usage
  ]
 
 # Array containing Values
@@ -40,7 +41,7 @@ result = []
 
 # Options
 if __name__=='__main__':
- parser = OptionParser(usage='%prog [-s, --screenshot]', description='Archey is a system information tool written in Python.', version="%prog 0.2.7")
+ parser = OptionParser(usage='%prog [-s, --screenshot]', description='Archey is a system information tool written in Python.', version="%prog 0.2.8")
  parser.add_option('-s', '--screenshot',
   action='store_true', dest='screenshot', help='take a screenshot')
  (options, args) = parser.parse_args()
@@ -85,36 +86,25 @@ sh_dict = {
  'jsh': 'Jsh',
  'tcsh': 'Tcsh'}
 
-# Define Color Schemes.
+# Define Colour Scheme
 
-# Clear 
 clear = '\x1b[0m'
-
-# Arch Linux.
-acolor = '\x1b[1;34m'
-acolor2 = '\x1b[0;34m' 
-
-# Ubuntu.
-ucolor = '\x1b[1;33m'
-ucolor2 = '\x1b[1;31m'
-ucolor3 = '\x1b[0;31m' 
-
-# Debian
-dcolor = '\x1b[1;31m'
-dcolor2 = '\x1b[0;31m'
-
-# Fedora 
-fcolor = '\x1b[1;37m'
-fcolor2 = '\x1b[1;34m'
-fcolor3 = '\x1b[0;34m'
-
-# CrunchBang
-ccolor = '\x1b[0;37m'
-ccolor2 = '\x1b[1;37m'
-
-# Mint
-mcolor = '\x1b[1;37m'
-mcolor2 = '\x1b[1;32m'
+blackB = '\x1b[0;30m'
+blackB = '\x1b[1;30m'
+redN = '\x1b[0;31m'
+redB = '\x1b[1;31m'
+greenN = '\x1b[0;32m'
+greenB = '\x1b[1;32m'
+yellowN = '\x1b[0;33m'
+yellowB = '\x1b[1;33m'
+blueN = '\x1b[0;34m'
+blueB = '\x1b[1;34m'
+magentaN = '\x1b[0;35m'
+magentaB = '\x1b[1;35m'
+cyanN = '\x1b[0;36m'
+cyanB = '\x1b[1;36m'
+whiteN = '\x1b[0;37m'
+whiteB = '\x1b[1;37m'
 
 # Find running processes.
 def xmonadfix(str):
@@ -130,17 +120,17 @@ DetectDistro = Popen(['lsb_release', '-i'], stdout=PIPE).communicate()[0].split(
 # Print coloured key with normal value.
 def output(key, value):
  if DetectDistro == 'Ubuntu':
-  output ='%s%s:%s %s' % (ucolor2, key, clear, value)
+  output ='%s%s:%s %s' % (redB, key, clear, value)
  if DetectDistro == 'Arch':
-  output = '%s%s:%s %s' % (acolor, key, clear, value)
+  output = '%s%s:%s %s' % (blueB, key, clear, value)
  if DetectDistro == 'Debian':
-  output = '%s%s:%s %s' % (dcolor, key, clear, value)
+  output = '%s%s:%s %s' % (redB, key, clear, value)
  if DetectDistro == 'Fedora':
-  output = '%s%s:%s %s' % (fcolor2, key, clear, value)
+  output = '%s%s:%s %s' % (blueB, key, clear, value)
  if DetectDistro == 'CrunchBang':
-  output = '%s%s:%s %s' % (ccolor, key, clear, value)
+  output = '%s%s:%s %s' % (whiteN, key, clear, value)
  if DetectDistro == 'LinuxMint':
-  output = '%s%s:%s %s' % (mcolor2, key, clear, value) 
+  output = '%s%s:%s %s' % (greenB, key, clear, value) 
  result.append(output)
 
 # RAM Function.
@@ -148,8 +138,17 @@ def ram_display():
  raminfo = Popen(['free', '-m'], stdout=PIPE).communicate()[0].split('\n')
  ram = ''.join(filter(re.compile('M').search, raminfo)).split()
  used = int(ram[2]) - int(ram[5]) - int(ram[6])
- output ('RAM', '%s MB / %s MB' % (used, ram[1]))
-
+ usedpercent = ((float(used) / float(ram[1])) * 100)
+ if usedpercent <= 33:
+  ramdisplay = '%s%s MB %s/ %s MB' % (greenB, used, clear, ram[1])
+  output('RAM', ramdisplay)
+ if usedpercent >= 34 <= 66:
+  ramdisplay = '%s%s MB %s/ %s MB' % (whiteB, used, clear, ram[1])
+  output('RAM', ramdisplay)
+ if usedpercent >= 67:
+  ramdisplay = '%s%s MB %s/ %s MB' % (redB, used, clear, ram[1])
+  output('RAM', ramdisplay)
+  
 # Screenshot Function.
 screen = '%s' % options.screenshot
 def screenshot():
@@ -189,10 +188,14 @@ def kernel_display():
  kernel = Popen(['uname', '-r'], stdout=PIPE).communicate()[0].rstrip('\n')
  output ('Kernel', kernel)
 
+def user_display():
+ username= os.getenv('USER')
+ output ('User', username)
+
 # Hostname Function.
 def hostname_display():
  hostname = Popen(['uname', '-n'], stdout=PIPE).communicate()[0].rstrip('\n')
- output ('Hostname', hostname)
+ output('Hostname', hostname)
 
 # CPU Function.
 def cpu_display():
@@ -218,7 +221,6 @@ def uptime_display():
 
 # Desktop Environment Function.
 def de_display():
- de = 'None found'
  for key in de_dict.keys():
   if key in processes:
    de = de_dict[key]
@@ -226,7 +228,6 @@ def de_display():
 
 # Window Manager Function.
 def wm_display():
- wm = 'None found'
  for key in wm_dict.keys():
   if key in processes:
    wm = wm_dict[key]
@@ -278,25 +279,24 @@ def packages_display():
   packages = p3.communicate()[0].rstrip('\n')
   output ('Packages', packages)
 
-# File System Function.
-def fs_display():
- supported = ('ext2', 'ext3', 'ext4', 'reiserfs', 'jfs', 'ntfs', 'fat32', 'btrfs', 'fuseblk')
- p1 = Popen(['df', '-TPh'], stdout=PIPE).communicate()[0]
- filesystems = p1.rstrip().split('\n')
- del filesystems[0]
-
- for fs in filesystems:
-  fs_split = fs.split()
-  used = fs_split[3]
-  total = fs_split[2]
-  type = fs_split[1]
-  name = fs_split[6]
-  part = '%s / %s (%s)' % (used, total, type)
-  if name == '/': name = '/root'
-  fs = name.rpartition('/')[2].title() + " FS"
-  if type in supported:
-   output (fs, part)
-
+# Disk Function.
+def disk_display():
+ p1 = Popen(['df', '-Tlh', '--total', '-t', 'ext4', '-t', 'ext3', '-t', 'ext2', '-t', 'reiserfs', '-t', 'jfs', '-t', 'ntfs', '-t', 'fat32', '-t', 'btrfs', '-t', 'fuseblk'], stdout=PIPE).communicate()[0]
+ total = p1.splitlines()[-1]
+ used = total.split()[3]
+ size = total.split()[2]
+ usedpercentage = float(re.sub("[A-Z]", "", used)) / float(re.sub("[A-Z]", "", size)) * 100
+ if usedpercentage <= 33:
+  fs = '%s%s %s/ %s' % (greenB, used, clear, size)  
+  output ('Disk', fs) 
+ if usedpercentage > 33 < 67:
+  fs = '%s%s %s/ %s' % (yellowB, used, clear, size)  
+  output ('Disk', fs) 
+ if usedpercentage >= 67:
+  fs = '%s%s %s/ %s' % (redB, used, clear, size)  
+  output ('Disk', fs) 
+	  
+ 
 # Run functions found in 'display' array.
 for x in display:
  funcname=x+'_display'
@@ -327,7 +327,7 @@ if DetectDistro == 'Ubuntu':
 %s               `.:://::- %s-:::::;    %s
 %s                         `.-:-'     %s
 %s                                    %s
-%s""" % ( ucolor3, result[0], ucolor2, ucolor3, result[1], ucolor2, ucolor3, result[2], ucolor, ucolor2, ucolor3, result[3], ucolor, ucolor2, result[4], ucolor, ucolor2, result[5], ucolor2, ucolor, ucolor2, result[6], ucolor2, ucolor, ucolor2, result[7], ucolor2, ucolor, result[8], ucolor2, ucolor, ucolor3, result[9], ucolor2, ucolor, ucolor3, result[10], ucolor, ucolor3, result[11], ucolor, ucolor3, result[12], ucolor, ucolor3, ucolor, result[13], ucolor3, ucolor, result[14], ucolor3, ucolor, result[15], ucolor, result[16], ucolor, result[17], clear )
+%s""" % ( redN, result[0], redB, redN, result[1], redB, redN, result[2], yellowB, redB, redN, result[3], yellowB, redB, result[4], yellowB, redB, result[5], redB, yellowB, redB, result[6], redB, yellowB, redB, result[7], redB, yellowB, result[8], redB, yellowB, redN, result[9], redB, yellowB, redN, result[10], yellowB, redN, result[11], yellowB, redN, result[12], yellowB, redN, yellowB, result[13], redN, yellowB, result[14], redN, yellowB, result[15], yellowB, result[16], yellowB, result[17], clear )
 
 if DetectDistro == 'Arch':
  print """%s
@@ -348,7 +348,7 @@ if DetectDistro == 'Arch':
 %s   ######'           '######    %s
 %s  ;####                 ####;   %s
 %s  ##'                     '##  %s 
-%s #'                         `#  %s%s """ % (acolor, acolor, result[0], acolor, result[1], acolor, result[2], acolor, result[3], acolor, result[4], acolor, result[5], acolor, result[6], acolor, result[7], acolor, acolor2, acolor, result[8], acolor, acolor2, acolor, result[9], acolor, acolor2, result[10], acolor2, result[11], acolor2, result[12], acolor2, result[13], acolor2, result[14], acolor2, result[15], acolor2, result[16], acolor2, result[17], clear)
+%s #'                         `#  %s%s """ % (blueB, blueB, result[0], blueB, result[1], blueB, result[2], blueB, result[3], blueB, result[4], blueB, result[5], blueB, result[6], blueB, result[7], blueB, blueN, blueB, result[8], blueB, blueN, blueB, result[9], blueB, blueN, result[10], blueN, result[11], blueN, result[12], blueN, result[13], blueN, result[14], blueN, result[15], blueN, result[16], blueN, result[17], clear)
 
 if DetectDistro == 'Debian':
  print """%s
@@ -370,7 +370,7 @@ if DetectDistro == 'Debian':
 %s         -)SSL,,                  %s
 %s            ~~~~~                 %s
 %s                                  %s
-%s """ % (dcolor, dcolor, result[0], dcolor, result[1], dcolor, result[2], dcolor, result[3], dcolor, result[4], dcolor, result[5], dcolor, result[6], dcolor, result[7], dcolor, result[8], dcolor2, result[9], dcolor2, result[10], dcolor2, result[11], dcolor2, result[12], dcolor2, result[13], dcolor2, result[14], dcolor2, result[15], dcolor2, result[16], dcolor2, result[17], clear) 
+%s """ % (redB, redB, result[0], redB, result[1], redB, result[2], redB, result[3], redB, result[4], redB, result[5], redB, result[6], redB, result[7], redB, result[8], redN, result[9], redN, result[10], redN, result[11], redN, result[12], redN, result[13], redN, result[14], redN, result[15], redN, result[16], redN, result[17], clear) 
 
 if DetectDistro == 'Fedora':
  print """
@@ -392,7 +392,7 @@ if DetectDistro == 'Fedora':
 %s :------%s:://:%s-----------://         %s
 %s :--------------------://           %s
 %s                                    %s
-%s """ % ( fcolor3, result[0], fcolor3, result[1], fcolor3, fcolor, fcolor3, result[2], fcolor3, fcolor, fcolor3, result[3], fcolor3, fcolor, fcolor3, result[4], fcolor3, fcolor, fcolor3, result[5], fcolor3, fcolor, fcolor3, result[6], fcolor3, fcolor, fcolor3, result[7], fcolor3, fcolor, fcolor3, result[8], fcolor3, fcolor, fcolor3, result[9], fcolor3, fcolor, fcolor3, result[10], fcolor3, fcolor, fcolor3, result[11], fcolor3, fcolor, fcolor3, result[12], fcolor3, fcolor, fcolor3, result[13], fcolor3, fcolor, fcolor3, result[14], fcolor3, fcolor, fcolor3, result[15], fcolor3, result[16], fcolor3, result[17], clear )
+%s """ % ( blueN, result[0], blueN, result[1], blueN, whiteB, blueN, result[2], blueN, whiteB, blueN, result[3], blueN, whiteB, blueN, result[4], blueN, whiteB, blueN, result[5], blueN, whiteB, blueN, result[6], blueN, whiteB, blueN, result[7], blueN, whiteB, blueN, result[8], blueN, whiteB, blueN, result[9], blueN, whiteB, blueN, result[10], blueN, whiteB, blueN, result[11], blueN, whiteB, blueN, result[12], blueN, whiteB, blueN, result[13], blueN, whiteB, blueN, result[14], blueN, whiteB, blueN, result[15], blueN, result[16], blueN, result[17], clear )
 
 if DetectDistro == 'CrunchBang':
  print """                               
@@ -414,7 +414,7 @@ if DetectDistro == 'CrunchBang':
 %s /__/      /__/                   |_| %s
 %s                                      %s
 %s                                      %s
-%s""" % ( ccolor, result[0], ccolor, result[1], ccolor, result[2], ccolor, result[3], ccolor, result[4], ccolor, result[5], ccolor, result[6], ccolor, result[7], ccolor, result[8], ccolor, result[9], ccolor, result[10], ccolor, result[11], ccolor, result[12], ccolor, result[13], ccolor, result[14], ccolor, result[15], ccolor, result[16], ccolor, result[17], clear )                                    
+%s""" % ( whiteN, result[0], whiteN, result[1], whiteN, result[2], whiteN, result[3], whiteN, result[4], whiteN, result[5], whiteN, result[6], whiteN, result[7], whiteN, result[8], whiteN, result[9], whiteN, result[10], whiteN, result[11], whiteN, result[12], whiteN, result[13], whiteN, result[14], whiteN, result[15], whiteN, result[16], whiteN, result[17], clear )                                    
 
 if DetectDistro == 'LinuxMint':
  print """%s                                     %s
@@ -435,7 +435,7 @@ if DetectDistro == 'LinuxMint':
 %s          ./ydNMMMMMMMMMMMMMMMMMMMMM %s
 %s                                     %s
 %s                                     %s
-%s""" % ( mcolor, result[0], mcolor, result[1], mcolor, result[2], mcolor, mcolor2, mcolor, result[3], mcolor, mcolor2, mcolor, result[4], mcolor, mcolor2, mcolor, result[5], mcolor, mcolor2, mcolor, result[6], mcolor, mcolor2, mcolor, result[7], mcolor, mcolor2, mcolor, result[8], mcolor, mcolor2, mcolor, result[9], mcolor, mcolor2, mcolor, result[10], mcolor, mcolor2, mcolor, result[11], mcolor, mcolor2, mcolor, result[12], mcolor, mcolor2, mcolor, result[13], mcolor, result[14], mcolor, result[15], mcolor, result[16], mcolor, result[17], clear )
+%s""" % ( whiteB, result[0], whiteB, result[1], whiteB, result[2], whiteB, greenB, whiteB, result[3], whiteB, greenB, whiteB, result[4], whiteB, greenB, whiteB, result[5], whiteB, greenB, whiteB, result[6], whiteB, greenB, whiteB, result[7], whiteB, greenB, whiteB, result[8], whiteB, greenB, whiteB, result[9], whiteB, greenB, whiteB, result[10], whiteB, greenB, whiteB, result[11], whiteB, greenB, whiteB, result[12], whiteB, greenB, whiteB, result[13], whiteB, result[14], whiteB, result[15], whiteB, result[16], whiteB, result[17], clear )
 
 if screen == 'True':
  screenshot()
