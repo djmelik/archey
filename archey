@@ -142,7 +142,7 @@ def ram_display():
  if usedpercent <= 33:
   ramdisplay = '%s%s MB %s/ %s MB' % (greenB, used, clear, ram[1])
   output('RAM', ramdisplay)
- if usedpercent > 33 and usedpercentage < 67:
+ if usedpercent > 33 and usedpercent < 67:
   ramdisplay = '%s%s MB %s/ %s MB' % (whiteB, used, clear, ram[1])
   output('RAM', ramdisplay)
  if usedpercent >= 67:
@@ -289,7 +289,7 @@ def disk_display():
  if usedpercent <= 33:
   fs = '%s%s %s/ %s' % (greenB, used, clear, size)  
   output ('Disk', fs) 
- if usedpercent > 33 and usedpercentage < 67:
+ if usedpercent > 33 and usedpercent < 67:
   fs = '%s%s %s/ %s' % (yellowB, used, clear, size)  
   output ('Disk', fs) 
  if usedpercent >= 67:
