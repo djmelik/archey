@@ -28,12 +28,12 @@ display = [
  'uptime',  # Display System Uptime
  'wm',  # Display Window Manager
  'de', # Display Desktop Environment
- 'packages', # Display Number of Packages Installed
- 'ram', # Display RAM Usage
- 'cpu', # Display CPU Model
  'sh', # Display Current Shell
  'term', # Display Current Terminal
- 'disk' # Display / Partition Usage
+ 'packages', # Display Number of Packages Installed
+ 'cpu', # Display CPU Model
+ 'ram', # Display RAM Usage
+ 'disk' # Display Disk Usage
  ]
 
 # Array containing Values
