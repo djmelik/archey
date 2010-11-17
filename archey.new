@@ -116,6 +116,8 @@ class Output:
 	def __detectDistro(self):
 		if os.path.exists('/etc/pacman.conf'):
 			return 'Arch Linux'
+		else:
+			sys.exit(1)
 			
 	def append(self, display):
 		self.results.append('%s%s: %s%s' % (colorDict[self.distro][1], display.key, colorDict['Clear'][0], display.value))
