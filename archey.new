@@ -1,0 +1,206 @@
+#!/usr/bin/env python
+#
+# Archey [version 0.3.0]
+#
+# Archey is a simple system information tool written in Python.
+#
+# Copyright 2010 Melik Manukyan <melik@archlinux.us>
+#
+# ASCII art by Brett Bohnenkamper <kittykatt@silverirc.com>
+# Changes Jerome Launay <jerome@projet-libre.org>
+# Fedora support by YeOK <yeok@henpen.org>
+#
+# Distributed under the terms of the GNU General Public License v3.
+# See http://www.gnu.org/licenses/gpl.txt for the full license text.
+
+# Import libraries
+import os, sys, subprocess, optparse, re, linecache
+from subprocess import Popen, PIPE
+from optparse import OptionParser
+from getpass import getuser
+from time import ctime, sleep
+
+# Output [Comment/Uncomment to Enable/Disable information.]
+
+output = [
+ 'User', # Output Username
+ 'Hostname', # Output Machine Hostname
+ 'Distro', # Output Distribution
+ 'Kernel',  # Output Kernel Version
+ 'Uptime',  # Output System Uptime
+ 'WindowManager',  # Output Window Manager
+ 'DesktopEnvironment', # Output Desktop Environment
+ 'Shell', # Output Current Shell
+ 'Terminal', # Output Current Terminal
+ 'Packages', # Output Number of Packages Installed
+ 'CPU', # Output CPU Model
+ 'RAM', # Output RAM Usage
+ 'Disk' # Output Disk Usage
+ ]
+ 
+#---------------Dictionaries---------------#
+
+colorDict = {
+	'Arch Linux': ['\x1b[0;34m', '\x1b[1;34m'],
+	'Ubuntu': ['\x1b[0;31m', '\x1b[1;31m', '\x1b[0;33m'],
+	'Debian': ['\x1b[0;31m', '\x1b[1;31m'],
+	'Mint': ['\x1b[0;32m', '\x1b[1;37m'],
+	'Crunchbang': ['\x1b[1;37m'],
+	'Fedora': ['\x1b[0;34m', '\x1b[1;37m'],
+	'Clear': ['\x1b[0m']
+	}
+	
+deDict = {
+	'gnome-session': 'GNOME',
+    'ksmserver': 'KDE',
+    'xfce4-session': 'Xfce',
+    'lxsession': 'LXDE'
+    }   
+wmDict = {
+    'awesome': 'Awesome',
+    'beryl': 'Beryl',
+    'blackbox': 'Blackbox',
+    'compiz': 'Compiz',
+    'dwm': 'DWM',
+    'enlightenment': 'Enlightenment',
+    'fluxbox': 'Fluxbox',
+    'fvwm': 'FVWM',
+    'i3': 'i3',
+    'icewm': 'IceWM',
+    'kwin': 'KWin',
+    'metacity': 'Metacity',
+    'musca': 'Musca',
+    'openbox': 'Openbox',
+    'pekwm': 'PekWM',
+    'ratpoison': 'ratpoison',
+    'scrotwm': 'ScrotWM',
+    'wmaker': 'Window Maker',
+    'wmfs': 'Wmfs',
+    'wmii': 'wmii',
+    'xfwm4': 'Xfwm',
+    'xmonad': 'xmonad'
+    }
+
+# Logos #
+logos = {'Arch Linux': '''{color[1]}
+{color[1]}               +                {results[0]}
+{color[1]}               #                {results[1]}
+{color[1]}              ###               {results[2]}
+{color[1]}             #####              {results[3]}
+{color[1]}             ######             {results[4]}
+{color[1]}            ; #####;            {results[5]}
+{color[1]}           +##.#####            {results[6]}
+{color[1]}          +##########           {results[7]}
+{color[1]}         ######{color[0]}#####{color[1]}##;         {results[8]}
+{color[1]}        ###{color[0]}############{color[1]}+        {results[9]}
+{color[1]}       #{color[0]}######   #######        {results[10]}
+{color[0]}     .######;     ;###;`\".      {results[11]}
+{color[0]}    .#######;     ;#####.       {results[12]}
+{color[0]}    #########.   .########`     {results[13]}
+{color[0]}   ######'           '######    {results[14]}
+{color[0]}  ;####                 ####;   {results[15]}
+{color[0]}  ##'                     '##   {results[16]} 
+{color[0]} #'                         `#  {results[17]}
+\x1b[0m'''
+}
+
+#---------------Classes---------------#
+class Output:
+	results = []
+	results.extend(['']*(14))
+	
+	def __init__(self):
+		self.distro = self.__detectDistro()
+		
+	def __detectDistro(self):
+		if open('/etc/pacman.conf'):
+			return 'Arch Linux'
+			
+	def append(self, display):
+		self.results.append('%s%s: %s%s' % (colorDict[self.distro][1], display.key, colorDict['Clear'][0], display.value))
+		
+	def output(self):
+		print(logos[self.distro].format(color = colorDict[self.distro], results = self.results))
+			
+class User(Output):
+	def __init__(self):
+		self.key = 'User'
+		self.value = os.getenv('USER')
+
+#class Hostname(Output):
+#		def __init__(self):
+			
+#class Distro(Output):
+#		def __init__(self):
+			
+#class Kernel(Output):
+#		def __init__(self):
+			
+class Uptime(Output):		
+	def __init__(self):
+		fuptime = int(open('/proc/uptime').read().split('.')[0])
+		day = int(fuptime / 86400)
+		fuptime = fuptime % 86400
+		hour = int(fuptime / 3600)
+		fuptime = fuptime % 3600
+		minute = int(fuptime / 60)
+		uptime = ''
+		if day == 1:
+			uptime += '%d day, ' % day
+		if day > 1:
+			uptime += '%d days, ' % day
+		uptime += '%d:%02d' % (hour, minute)
+		self.key = 'Uptime'
+		self.value = uptime
+	
+#class WindowManager(Output):
+#		def __init__(self):
+#			wm = ''
+#			for key in wmDict.keys():
+#				if processes(key):
+#					wm = key
+#					break
+#					
+#			self.key = 'Window Manager'
+#			self.value = wm
+			
+#class DesktopEnvironment(Output):
+#		def __init__(self):
+#			de = ''
+#			for key in deDict.keys():
+#				if processes(key):
+#					wm = key
+#					break
+#					
+#			self.key = 'Desktop Environment'
+#			self.value = de
+			
+class Shell(Output):
+		def __init__(self):
+			self.key = 'Shell'
+			self.value = os.getenv('SHELL')
+			
+class Terminal(Output):
+		def __init__(self):
+			self.key = 'Terminal'
+			self.value = os.getenv('TERM')
+			
+#class Packages(Output):
+#		def __init__(self):
+			
+#class CPU(Output):
+#		def __init__(self):
+			
+#class RAM(Output):
+#		def __init__(self):
+			
+#class Disk(Output):
+#	def __init__(self):
+
+
+out = Output()
+out.append(Shell())
+out.append(User())
+out.append(Terminal())
+out.append(Uptime())
+out.output()
