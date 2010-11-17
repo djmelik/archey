@@ -51,36 +51,36 @@ colorDict = {
 	}
 	
 deDict = {
-    'gnome-session': 'GNOME',
-    'ksmserver': 'KDE',
-    'xfce4-session': 'Xfce',
-    'lxsession': 'LXDE'
-    }
+	'gnome-session': 'GNOME',
+	'ksmserver': 'KDE',
+	'xfce4-session': 'Xfce',
+	'lxsession': 'LXDE'
+	}
 
 wmDict = {
-    'awesome': 'Awesome',
-    'beryl': 'Beryl',
-    'blackbox': 'Blackbox',
-    'compiz': 'Compiz',
-    'dwm': 'DWM',
-    'enlightenment': 'Enlightenment',
-    'fluxbox': 'Fluxbox',
-    'fvwm': 'FVWM',
-    'i3': 'i3',
-    'icewm': 'IceWM',
-    'kwin': 'KWin',
-    'metacity': 'Metacity',
-    'musca': 'Musca',
-    'openbox': 'Openbox',
-    'pekwm': 'PekWM',
-    'ratpoison': 'ratpoison',
-    'scrotwm': 'ScrotWM',
-    'wmaker': 'Window Maker',
-    'wmfs': 'Wmfs',
-    'wmii': 'wmii',
-    'xfwm4': 'Xfwm',
-    'xmonad': 'xmonad'
-    }
+	'awesome': 'Awesome',
+	'beryl': 'Beryl',
+	'blackbox': 'Blackbox',
+	'compiz': 'Compiz',
+	'dwm': 'DWM',
+	'enlightenment': 'Enlightenment',
+	'fluxbox': 'Fluxbox',
+	'fvwm': 'FVWM',
+	'i3': 'i3',
+	'icewm': 'IceWM',
+	'kwin': 'KWin',
+	'metacity': 'Metacity',
+	'musca': 'Musca',
+	'openbox': 'Openbox',
+	'pekwm': 'PekWM',
+	'ratpoison': 'ratpoison',
+	'scrotwm': 'ScrotWM',
+	'wmaker': 'Window Maker',
+	'wmfs': 'Wmfs',
+	 wmii': 'wmii',
+	'xfwm4': 'Xfwm',
+	'xmonad': 'xmonad'
+	}
 
 logosDict = {'Arch Linux': '''{color[1]}
 {color[1]}               +                {results[0]}
@@ -118,8 +118,8 @@ class Output:
 	def __detectDistro(self):
 		if os.path.exists('/etc/pacman.conf'):
 			return 'Arch Linux'
-        else:
-            sys.exit(1)
+	        else:
+			sys.exit(1)
 			
 	def append(self, display):
 		self.results.append('%s%s: %s%s' % (colorDict[self.distro][1], display.key, colorDict['Clear'][0], display.value))
@@ -159,15 +159,15 @@ class Uptime:
 		self.value = uptime
 	
 class WindowManager:
-		def __init__(self):
-			wm = ''
-			for key in wmDict.keys():
-				if key in processes:
-					wm = key
-					break
+	def __init__(self):
+		wm = ''
+		for key in wmDict.keys():
+			if key in processes:
+				wm = wmDict[key]
+				break
 					
-			self.key = 'Window Manager'
-			self.value = wm
+		self.key = 'Window Manager'
+		self.value = wm
 			
 class DesktopEnvironment:
 	def __init__(self):
