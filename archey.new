@@ -77,7 +77,7 @@ wmDict = {
 	'scrotwm': 'ScrotWM',
 	'wmaker': 'Window Maker',
 	'wmfs': 'Wmfs',
-	 wmii': 'wmii',
+	'wmii': 'wmii',
 	'xfwm4': 'Xfwm',
 	'xmonad': 'xmonad'
 	}
@@ -118,7 +118,7 @@ class Output:
 	def __detectDistro(self):
 		if os.path.exists('/etc/pacman.conf'):
 			return 'Arch Linux'
-	        else:
+		else:
 			sys.exit(1)
 			
 	def append(self, display):
