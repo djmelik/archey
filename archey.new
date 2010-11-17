@@ -123,21 +123,21 @@ class Output:
 	def output(self):
 		print(logos[self.distro].format(color = colorDict[self.distro], results = self.results))
 			
-class User(Output):
+class User:
 	def __init__(self):
 		self.key = 'User'
 		self.value = os.getenv('USER')
 
-#class Hostname(Output):
+#class Hostname:
 #	def __init__(self):
 			
-#class Distro(Output):
+#class Distro:
 #	def __init__(self):
 			
-#class Kernel(Output):
+#class Kernel:
 #	def __init__(self):
 			
-class Uptime(Output):		
+class Uptime:		
 	def __init__(self):
 		fuptime = int(open('/proc/uptime').read().split('.')[0])
 		day = int(fuptime / 86400)
@@ -154,7 +154,7 @@ class Uptime(Output):
 		self.key = 'Uptime'
 		self.value = uptime
 	
-#class WindowManager(Output):
+#class WindowManager:
 #		def __init__(self):
 #			wm = ''
 #			for key in wmDict.keys():
@@ -165,7 +165,7 @@ class Uptime(Output):
 #			self.key = 'Window Manager'
 #			self.value = wm
 			
-#class DesktopEnvironment(Output):
+#class DesktopEnvironment:
 #	def __init__(self):
 #		de = ''
 #		for key in deDict.keys():
@@ -176,26 +176,26 @@ class Uptime(Output):
 #		self.key = 'Desktop Environment'
 #		self.value = de
 			
-class Shell(Output):
+class Shell:
 	def __init__(self):
 		self.key = 'Shell'
 		self.value = os.getenv('SHELL')
 			
-class Terminal(Output):
+class Terminal:
 	def __init__(self):
 		self.key = 'Terminal'
 		self.value = os.getenv('TERM')
 			
-#class Packages(Output):
+#class Packages:
 #	def __init__(self):
 			
-#class CPU(Output):
+#class CPU:
 #	def __init__(self):
 			
-#class RAM(Output):
+#class RAM:
 #	def __init__(self):
 			
-#class Disk(Output):
+#class Disk:
 #	def __init__(self):
 
 
