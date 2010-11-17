@@ -88,7 +88,6 @@ sh_dict = {
 
 # Define Colour Scheme
 
-clear = '\x1b[0m'
 blackB = '\x1b[0;30m'
 blackB = '\x1b[1;30m'
 redN = '\x1b[0;31m'
@@ -287,7 +286,7 @@ def disk_display():
  size = total.split()[2]
  usedpercent = float(re.sub("[A-Z]", "", used)) / float(re.sub("[A-Z]", "", size)) * 100
  if usedpercent <= 33:
-  fs = '%s%s %s/ %s' % (greenB, used, clear, size)  
+  fs = '%s%s %s/ %s' % (greenB, used,  , size)  
   output ('Disk', fs) 
  if usedpercent > 33 and usedpercent < 67:
   fs = '%s%s %s/ %s' % (yellowB, used, clear, size)  
