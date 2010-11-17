@@ -20,22 +20,22 @@ from optparse import OptionParser
 from getpass import getuser
 from time import ctime, sleep
 
-# Output [Comment/Uncomment to Enable/Disable information.]
+#---------------Output---------------#
 
 output = [
- 'User', # Output Username
- 'Hostname', # Output Machine Hostname
- 'Distro', # Output Distribution
- 'Kernel',  # Output Kernel Version
- 'Uptime',  # Output System Uptime
- 'WindowManager',  # Output Window Manager
- 'DesktopEnvironment', # Output Desktop Environment
- 'Shell', # Output Current Shell
- 'Terminal', # Output Current Terminal
- 'Packages', # Output Number of Packages Installed
- 'CPU', # Output CPU Model
- 'RAM', # Output RAM Usage
- 'Disk' # Output Disk Usage
+ 'User',
+ 'Hostname',
+ 'Distro',
+ 'Kernel',
+ 'Uptime',
+ 'WindowManager',
+ 'DesktopEnvironment',
+ 'Shell',
+ 'Terminal',
+ 'Packages',
+ 'CPU',
+ 'RAM',
+ 'Disk'
  ]
  
 #---------------Dictionaries---------------#
@@ -51,7 +51,7 @@ colorDict = {
 	}
 	
 deDict = {
-	'gnome-session': 'GNOME',
+    'gnome-session': 'GNOME',
     'ksmserver': 'KDE',
     'xfce4-session': 'Xfce',
     'lxsession': 'LXDE'
@@ -82,8 +82,7 @@ wmDict = {
     'xmonad': 'xmonad'
     }
 
-# Logos #
-logos = {'Arch Linux': '''{color[1]}
+logosDict = {'Arch Linux': '''{color[1]}
 {color[1]}               +                {results[0]}
 {color[1]}               #                {results[1]}
 {color[1]}              ###               {results[2]}
@@ -106,6 +105,7 @@ logos = {'Arch Linux': '''{color[1]}
 }
 
 #---------------Classes---------------#
+
 class Output:
 	results = []
 	results.extend(['']*(14))
@@ -121,7 +121,7 @@ class Output:
 		self.results.append('%s%s: %s%s' % (colorDict[self.distro][1], display.key, colorDict['Clear'][0], display.value))
 		
 	def output(self):
-		print(logos[self.distro].format(color = colorDict[self.distro], results = self.results))
+		print(logosDict[self.distro].format(color = colorDict[self.distro], results = self.results))
 			
 class User:
 	def __init__(self):
@@ -199,6 +199,7 @@ class Terminal:
 #	def __init__(self):
 
 
+## TEST ## <<< TEMPORARY 
 out = Output()
 out.append(Shell())
 out.append(User())
