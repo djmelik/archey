@@ -55,7 +55,8 @@ deDict = {
     'ksmserver': 'KDE',
     'xfce4-session': 'Xfce',
     'lxsession': 'LXDE'
-    }   
+    }
+
 wmDict = {
     'awesome': 'Awesome',
     'beryl': 'Beryl',
@@ -128,13 +129,13 @@ class User(Output):
 		self.value = os.getenv('USER')
 
 #class Hostname(Output):
-#		def __init__(self):
+#	def __init__(self):
 			
 #class Distro(Output):
-#		def __init__(self):
+#	def __init__(self):
 			
 #class Kernel(Output):
-#		def __init__(self):
+#	def __init__(self):
 			
 class Uptime(Output):		
 	def __init__(self):
@@ -165,34 +166,34 @@ class Uptime(Output):
 #			self.value = wm
 			
 #class DesktopEnvironment(Output):
-#		def __init__(self):
-#			de = ''
-#			for key in deDict.keys():
-#				if processes(key):
-#					wm = key
-#					break
+#	def __init__(self):
+#		de = ''
+#		for key in deDict.keys():
+#			if processes(key):
+#				wm = key
+#				break
 #					
-#			self.key = 'Desktop Environment'
-#			self.value = de
+#		self.key = 'Desktop Environment'
+#		self.value = de
 			
 class Shell(Output):
-		def __init__(self):
-			self.key = 'Shell'
-			self.value = os.getenv('SHELL')
+	def __init__(self):
+		self.key = 'Shell'
+		self.value = os.getenv('SHELL')
 			
 class Terminal(Output):
-		def __init__(self):
-			self.key = 'Terminal'
-			self.value = os.getenv('TERM')
+	def __init__(self):
+		self.key = 'Terminal'
+		self.value = os.getenv('TERM')
 			
 #class Packages(Output):
-#		def __init__(self):
+#	def __init__(self):
 			
 #class CPU(Output):
-#		def __init__(self):
+#	def __init__(self):
 			
 #class RAM(Output):
-#		def __init__(self):
+#	def __init__(self):
 			
 #class Disk(Output):
 #	def __init__(self):
