@@ -104,11 +104,13 @@ logosDict = {'Arch Linux': '''{color[1]}
 \x1b[0m'''
 }
 
+processes = Popen(['ps', '-u', getuser()],stdout=PIPE).communicate()[0].split(b'\n')
+
 #---------------Classes---------------#
 
 class Output:
 	results = []
-	results.extend(['']*(14))
+	results.extend(['']*(13))
 	
 	def __init__(self):
 		self.distro = self.__detectDistro()
@@ -116,6 +118,8 @@ class Output:
 	def __detectDistro(self):
 		if os.path.exists('/etc/pacman.conf'):
 			return 'Arch Linux'
+        else:
+            sys.exit(1)
 			
 	def append(self, display):
 		self.results.append('%s%s: %s%s' % (colorDict[self.distro][1], display.key, colorDict['Clear'][0], display.value))
@@ -154,27 +158,27 @@ class Uptime:
 		self.key = 'Uptime'
 		self.value = uptime
 	
-#class WindowManager:
-#		def __init__(self):
-#			wm = ''
-#			for key in wmDict.keys():
-#				if processes(key):
-#					wm = key
-#					break
-#					
-#			self.key = 'Window Manager'
-#			self.value = wm
+class WindowManager:
+		def __init__(self):
+			wm = ''
+			for key in wmDict.keys():
+				if key in processes:
+					wm = key
+					break
+					
+			self.key = 'Window Manager'
+			self.value = wm
 			
-#class DesktopEnvironment:
-#	def __init__(self):
-#		de = ''
-#		for key in deDict.keys():
-#			if processes(key):
-#				wm = key
-#				break
-#					
-#		self.key = 'Desktop Environment'
-#		self.value = de
+class DesktopEnvironment:
+	def __init__(self):
+		de = ''
+		for key in deDict.keys():
+			if key in processes:
+				wm = wmDict[key]
+				break
+					
+		self.key = 'Desktop Environment'
+		self.value = de
 			
 class Shell:
 	def __init__(self):
@@ -205,4 +209,6 @@ out.append(Shell())
 out.append(User())
 out.append(Terminal())
 out.append(Uptime())
+out.append(WindowManager())
+#out.append(DesktopEnvirornment())
 out.output()
