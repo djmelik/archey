@@ -15,7 +15,6 @@
 
 # Import libraries
 import os, sys, subprocess, optparse, re, linecache
-from subprocess import Popen, PIPE
 from optparse import OptionParser
 from getpass import getuser
 from time import ctime, sleep
