@@ -104,7 +104,8 @@ logosDict = {'Arch Linux': '''{color[1]}
 \x1b[0m'''
 }
 
-processes = Popen(['ps', '-u', getuser()],stdout=PIPE).communicate()[0].split(b'\n')
+processes = str(subprocess.check_output(('ps', '-u', getuser(), '-o', 'comm',
+	'--no-headers')), encoding='utf8').rstrip('\n').split('\n')
 
 #---------------Classes---------------#
 
