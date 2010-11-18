@@ -131,11 +131,28 @@ class Output():
 		
 	def output(self):
 		print(logosDict[self.distro].format(color = colorDict[self.distro], results = self.results))
-			
-class User():
+
+class BaseDisplay():
+	"""
+	All display classes should inherit this. It defigns several base functions that can be overwritten by any child classes
+	
+	>>>import random
+	>>>class RandomNumber(BaseDisplay):
+	...    key = 'Random Number'
+	...    value = random.random() * 1000
+	...
+	>>>r = RandomNumber()
+	>>>print `r`
+	"""
+	
+	key = None
+	value = None
+	
 	def __init__(self):
-		self.key = 'User'
-		self.value = os.getenv('USER')
+		raise NotImplemented('Display classes must implements their own __init__ function')
+	
+	def __repr__(self):
+		return '<{0}: key={1}, value={2}>'.format(self.__class__.__name__, self.key, self.value)
 
 #class Hostname:
 #	def __init__(self):
@@ -146,7 +163,7 @@ class User():
 #class Kernel:
 #	def __init__(self):
 			
-class Uptime():		
+class Uptime(BaseDisplay):		
 	def __init__(self):
 		fuptime = int(open('/proc/uptime').read().split('.')[0])
 		day = int(fuptime / 86400)
@@ -163,7 +180,7 @@ class Uptime():
 		self.key = 'Uptime'
 		self.value = uptime
 	
-class WindowManager():
+class WindowManager(BaseDisplay):
 	def __init__(self):
 		wm = ''
 		for key in wmDict.keys():
@@ -174,7 +191,7 @@ class WindowManager():
 		self.key = 'Window Manager'
 		self.value = wm
 			
-class DesktopEnvironment():
+class DesktopEnvironment(BaseDisplay):
 	def __init__(self):
 		de = ''
 		for key in deDict.keys():
@@ -213,17 +230,17 @@ def enviroment_variable(klass):
 	return klass
 
 @enviroment_variable
-class Shell():
+class Shell(BaseDisplay):
 	key = 'Shell'
 	env = 'SHELL'
 
 @enviroment_variable	
-class Terminal():
+class Terminal(BaseDisplay):
 	key = 'Terminal'
 	env = 'TERM'
 
 @enviroment_variable
-class User():
+class User(BaseDisplay):
 	key = 'User'
 	env = 'USER'
 			
