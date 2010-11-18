@@ -106,6 +106,11 @@ logosDict = {'Arch Linux': '''{color[1]}
 processes = str(subprocess.check_output(('ps', '-u', getuser(), '-o', 'comm',
 	'--no-headers')), encoding='utf8').rstrip('\n').split('\n')
 
+
+#--------------Exceptions-------------#
+
+class ArcheyException(Exception): pass
+
 #---------------Classes---------------#
 
 class Output():
@@ -119,7 +124,7 @@ class Output():
 		if os.path.exists('/etc/pacman.conf'):
 			return 'Arch Linux'
 		else:
-			sys.exit(1)
+			sys.exit("Unsupported distro")
 			
 	def append(self, display):
 		self.results.append('%s%s: %s%s' % (colorDict[self.distro][1], display.key, colorDict['Clear'][0], display.value))
@@ -179,16 +184,48 @@ class DesktopEnvironment():
 					
 		self.key = 'Desktop Environment'
 		self.value = de
-			
+		
+def enviroment_variable(klass):
+	"""
+	Decorate classes with this decorator. Classes decorated with enviroment_variable will
+	have their __init__ function automaticly generated. This makes it very easy to write
+	a class that returns an enviroment variable.
+	
+	>>>@enviroment_variable
+	...class Lang():
+	...    key = 'Language'
+	...    env = 'LANG'
+	...
+	>>>test = Lang()
+	>>>import os
+	>>>assert test.value == os.getenv('LANG')
+	"""
+	
+	def __init__(self):
+		self.value = os.getenv(self.env)
+		
+	if hasattr(klass, 'key') and hasattr(klass, 'env'):
+		klass.__init__ = __init__
+	else:
+		raise ArcheyException('Classes decorated with @enviroment_variable must have'
+		                      'key and env attributes')
+	
+	return klass
+
+@enviroment_variable
 class Shell():
-	def __init__(self):
-		self.key = 'Shell'
-		self.value = os.getenv('SHELL')
-			
+	key = 'Shell'
+	env = 'SHELL'
+
+@enviroment_variable	
 class Terminal():
-	def __init__(self):
-		self.key = 'Terminal'
-		self.value = os.getenv('TERM')
+	key = 'Terminal'
+	env = 'TERM'
+
+@enviroment_variable
+class User():
+	key = 'User'
+	env = 'USER'
 			
 #class Packages():
 #	def __init__(self):
