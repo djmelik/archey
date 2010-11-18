@@ -320,11 +320,15 @@ class User(BaseDisplay):
 
 
 ## TEST ## <<< TEMPORARY 
-out = Output()
-out.append(Shell())
-out.append(User())
-out.append(Terminal())
-out.append(Uptime())
-out.append(WindowManager())
-#out.append(DesktopEnvirornment())
-out.output()
+def main():
+	out = Output()
+	out.append(Shell())
+	out.append(User())
+	out.append(Terminal())
+	out.append(Uptime())
+	out.append(WindowManager())
+	#out.append(DesktopEnvirornment())
+	out.output()
+
+if __name__ == '__main__':
+	main()
