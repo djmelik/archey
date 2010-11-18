@@ -108,7 +108,7 @@ processes = str(subprocess.check_output(('ps', '-u', getuser(), '-o', 'comm',
 
 #---------------Classes---------------#
 
-class Output:
+class Output():
 	results = []
 	results.extend(['']*(13))
 	
@@ -127,7 +127,7 @@ class Output:
 	def output(self):
 		print(logosDict[self.distro].format(color = colorDict[self.distro], results = self.results))
 			
-class User:
+class User():
 	def __init__(self):
 		self.key = 'User'
 		self.value = os.getenv('USER')
@@ -141,7 +141,7 @@ class User:
 #class Kernel:
 #	def __init__(self):
 			
-class Uptime:		
+class Uptime():		
 	def __init__(self):
 		fuptime = int(open('/proc/uptime').read().split('.')[0])
 		day = int(fuptime / 86400)
@@ -158,7 +158,7 @@ class Uptime:
 		self.key = 'Uptime'
 		self.value = uptime
 	
-class WindowManager:
+class WindowManager():
 	def __init__(self):
 		wm = ''
 		for key in wmDict.keys():
@@ -169,7 +169,7 @@ class WindowManager:
 		self.key = 'Window Manager'
 		self.value = wm
 			
-class DesktopEnvironment:
+class DesktopEnvironment():
 	def __init__(self):
 		de = ''
 		for key in deDict.keys():
@@ -180,26 +180,26 @@ class DesktopEnvironment:
 		self.key = 'Desktop Environment'
 		self.value = de
 			
-class Shell:
+class Shell():
 	def __init__(self):
 		self.key = 'Shell'
 		self.value = os.getenv('SHELL')
 			
-class Terminal:
+class Terminal():
 	def __init__(self):
 		self.key = 'Terminal'
 		self.value = os.getenv('TERM')
 			
-#class Packages:
+#class Packages():
 #	def __init__(self):
 			
-#class CPU:
+#class CPU():
 #	def __init__(self):
 			
-#class RAM:
+#class RAM():
 #	def __init__(self):
 			
-#class Disk:
+#class Disk():
 #	def __init__(self):
 
 
