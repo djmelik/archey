@@ -187,13 +187,39 @@ class Output(list):
 		new_results[start:start + length - 1] = results
 		
 		return new_results
+	
+	def _get_results(self):
+		"""
+		Returns a dict of the keys and values of the currently registered display classes.
+		NOTE: Will not include any key value pairs where either evaluates to False.
 		
-	def append(self, display):
-		super().append('%s%s: %s%s' % (self._color(1), display.key, self._color('Clear'), display.value))
+		>>>out = Output()
+		>>>class TestDisplay():
+		...    key = 'Foo'
+		...    value = 'Bar'
+		...    key_value_pair = lambda self: {self.key: self.value}
+		...
+		>>>out.append(TestDisplay())
+		>>>out._get_results()
+		{'Foo': 'Bar'}
+		"""
+		return {key:value for key, value in [disp.key_value_pair() for disp in self] if key and value}
 		
 	def output(self):
-		results = self._center_results(self)
-		print(self._get_logo().format(color=self._color(self.distro), results=results))
+		"""
+		Outputs the archey logo and information. Reads Display classes from the internal list,
+		and formats them, adding color. The final pretty list is then centered (though other alignments
+		may be added) and printed.
+		"""
+		
+		results = self._get_results()
+		
+		unformatted_stn = '{color}{key}: {clear}{value}{clear}'
+		pretty_results = [unformatted_stn.format(color=self._color(1), key=key, value=value, clear=self._color('Clear'))
+		                  for key, value in results.items()]
+		
+		centered_results = self._center_results(pretty_results)
+		print(self._get_logo().format(color=self._color(self.distro), results=centered_results))
 
 class BaseDisplay():
 	"""
@@ -216,6 +242,18 @@ class BaseDisplay():
 	
 	def __repr__(self):
 		return '<{0}: key={1}, value={2}>'.format(self.__class__.__name__, self.key, self.value)
+	
+	def key_value_pair(self):
+		"""
+		Returns a tuple of the key and value of the current display.
+		
+		>>>disp = BaseDisplay()
+		>>>disp.key = 'Foo'
+		>>>disp.value = 'Bar'
+		>>>disp.key_value_pair()
+		('Foo', 'Bar')
+		"""
+		return (self.key, self.value)
 
 #class Hostname:
 #	def __init__(self):
