@@ -319,7 +319,7 @@ class DesktopEnvironment(BaseDisplay):
 		de = ''
 		for key in DE_DICT.keys():
 			if key in PROCESSES:
-				wm = WM_DICT[key]
+				wm = DE_DICT[key]
 				break
 		return wm
 		
