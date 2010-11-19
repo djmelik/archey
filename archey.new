@@ -319,9 +319,9 @@ class DesktopEnvironment(BaseDisplay):
 		de = ''
 		for key in DE_DICT.keys():
 			if key in PROCESSES:
-				wm = DE_DICT[key]
+				de = DE_DICT[key]
 				break
-		return wm
+		return de
 		
 def enviroment_variable(klass):
 	"""
@@ -381,7 +381,7 @@ def shell_command(klass):
 		stdout, stderr = cmd.communicate()
 		return self.process_output(stdout.decode('ascii'), stderr.decode('ascii'))
 	
-	if not all(hasattr(klass, name) for name in ('command', 'key', 'process_output')):
+	if not all(hasattr(klass, name) for name in ('command', 'process_output')):
 		raise ArcheyException("Classes decorated with @shell_command must have "
 			              "a key and command attributes, and the process_output method")
 	else:
