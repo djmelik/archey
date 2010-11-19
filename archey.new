@@ -367,9 +367,45 @@ class Terminal(BaseDisplay):
 class User(BaseDisplay):
 	key = 'User'
 	env = 'USER'
-			
-#class Packages():
-#	def __init__(self):
+
+def shell_command(klass):
+	"""
+	A class decorated with @shell_command will be treated as a class that runs a command, and then parses the output.
+	
+	It should have two string members, "command", the command that will be run, and "key", the key for the display.
+	It should also implement one method, process_output, which should take two arguments, stdout, and stderr, and return
+	a value to be displayed.
+	"""
+	def get_value(self):
+		cmd = subprocess.Popen(self.command.split(),
+		                       stdout=subprocess.PIPE,
+		                       stdin=subprocess.PIPE,
+		                       stderr=subprocess.PIPE)
+		stdout, stderr = cmd.communicate()
+		return self.process_output(stdout.decode('ascii'), stderr.decode('ascii'))
+	
+	if not all(hasattr(klass, name) for name in ('command', 'key', 'process_output')):
+		raise ArcheyException("Classes decorated with @shell_command must have "
+			              "a key and command attributes, and the process_output method")
+	else:
+		klass.get_value = get_value
+	
+	return klass
+
+@shell_command
+class Packages(BaseDisplay):
+	key = 'Packman packages'
+	command = 'pacman -Q'
+	
+	def process_output(self, stdout, stderr):
+		#Return nothing if pacman returns errors
+		if stderr:
+			return None
+		
+		no_of_packages = len(stdout.split('\n'))
+		
+		return str(no_of_packages)
+	
 			
 #class CPU():
 #	def __init__(self):
@@ -389,6 +425,7 @@ def main():
 	out.append(Terminal())
 	out.append(Uptime())
 	out.append(WindowManager())
+	out.append(Packages())
 	#out.append(DesktopEnvirornment())
 	out.output()
 
