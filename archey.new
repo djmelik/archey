@@ -237,9 +237,6 @@ class BaseDisplay():
 	key = None
 	value = None
 	
-	def __init__(self):
-		raise NotImplemented('Display classes must implements their own __init__ function')
-	
 	def __repr__(self):
 		return '<{0}: key={1}, value={2}>'.format(self.__class__.__name__, self.key, self.value)
 	
@@ -278,44 +275,51 @@ class BaseDisplay():
 #class Kernel:
 #	def __init__(self):
 			
-class Uptime(BaseDisplay):		
-	def __init__(self):
+class Uptime(BaseDisplay):
+	key = 'Uptime'
+	
+	def get_uptime(self):
 		fuptime = int(open('/proc/uptime').read().split('.')[0])
 		day = int(fuptime / 86400)
 		fuptime = fuptime % 86400
 		hour = int(fuptime / 3600)
 		fuptime = fuptime % 3600
 		minute = int(fuptime / 60)
-		uptime = ''
-		if day == 1:
-			uptime += '%d day, ' % day
-		if day > 1:
-			uptime += '%d days, ' % day
-		uptime += '%d:%02d' % (hour, minute)
-		self.key = 'Uptime'
-		self.value = uptime
+		
+		return {'day': day, 'hour': hour, 'minute': minute}
+	
+	def get_value(self):
+		uptime = self.get_uptime()
+		
+		if uptime['day']:
+			value = '{day}{suffix}'.format(day=uptime['day'], suffix='s' if day > 1 else '')
+		else:
+			value = ''
+		value += '{hours}:{mins:02d}'.format(hours=uptime['hour'], mins=uptime['minute'])
+		return value
 	
 class WindowManager(BaseDisplay):
-	def __init__(self):
+	key = 'Window Manager'
+	
+	def get_value(self):
 		wm = ''
 		for key in WM_DICT.keys():
 			if key in PROCESSES:
 				wm = WM_DICT[key]
 				break
 					
-		self.key = 'Window Manager'
-		self.value = wm
+		return wm
 			
 class DesktopEnvironment(BaseDisplay):
-	def __init__(self):
+	key = 'Desktop Environment'
+	
+	def get_value(self):
 		de = ''
 		for key in DE_DICT.keys():
 			if key in PROCESSES:
 				wm = WM_DICT[key]
 				break
-					
-		self.key = 'Desktop Environment'
-		self.value = de
+		return wm
 		
 def enviroment_variable(klass):
 	"""
@@ -333,11 +337,11 @@ def enviroment_variable(klass):
 	>>>assert test.value == os.getenv('LANG')
 	"""
 	
-	def __init__(self):
-		self.value = os.getenv(self.env)
+	def get_value(self):
+		return os.getenv(self.env)
 		
 	if hasattr(klass, 'key') and hasattr(klass, 'env'):
-		klass.__init__ = __init__
+		klass.get_value = get_value
 	else:
 		raise ArcheyException('Classes decorated with @enviroment_variable must have'
 		                      'key and env attributes')
