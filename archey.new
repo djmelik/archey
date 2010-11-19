@@ -23,18 +23,12 @@ from time import ctime, sleep
 
 output = [
  'User',
- 'Hostname',
- 'Distro',
- 'Kernel',
  'Uptime',
  'WindowManager',
  'DesktopEnvironment',
  'Shell',
  'Terminal',
  'Packages',
- 'CPU',
- 'RAM',
- 'Disk'
  ]
 
 #--------------Exceptions-------------#
@@ -242,6 +236,9 @@ class BaseDisplay():
 	key = None
 	value = None
 	
+	def __init__(self, args=None):
+		self.arguments = args or []
+	
 	def __repr__(self):
 		return '<{0}: key={1}, value={2}>'.format(self.__class__.__name__, self.key, self.value)
 	
@@ -420,14 +417,36 @@ class Packages(BaseDisplay):
 ## TEST ## <<< TEMPORARY 
 def main():
 	out = Output()
-	out.append(Shell())
-	out.append(User())
-	out.append(Terminal())
-	out.append(Uptime())
-	out.append(WindowManager())
-	out.append(Packages())
-	#out.append(DesktopEnvirornment())
+	
+	displays = get_display_objects(output)
+	
+	out.extend(displays)
 	out.output()
-
+	
+def get_display_objects(names):
+	"""
+	Returns a list of display objects, from the names in the list passed to the
+	function as the first argument.
+	"""
+	for raw in names:
+		if ':' in raw:
+			name, *raw_arguments = raw.split(':')
+			if len(raw_arguments) > 1:
+				raise ArcheyException('Badly formatted argument in "{0}"'.format(raw))
+			else:
+				arguments = [arg for arg in raw_arguments.split(',') if arg]
+		else:
+			name = raw
+			arguments = []
+		try:
+			klass = eval(name)
+		except:
+			try:
+				klass = eval(name.capitalize())
+			except:
+				raise ArcheyException('Could not find display class {0} to use'.format(name))
+		
+		yield klass(arguments)
+	
 if __name__ == '__main__':
 	main()
