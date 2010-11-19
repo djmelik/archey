@@ -215,8 +215,16 @@ class Output(list):
 		results = self._get_results()
 		
 		unformatted_stn = '{color}{key}: {clear}{value}{clear}'
-		pretty_results = [unformatted_stn.format(color=self._color(1), key=key, value=value, clear=self._color('Clear'))
-		                  for key, value in results.items()]
+		pretty_results = []
+		for key, value in results.items():
+			try:
+				formatted_stn = unformatted_stn.format(color=self._color(1), key=key, value=value,
+				                                       clear=self._color('Clear'))
+			except:
+				#Fail silently, have a debug option later for noisy fail?
+				pass
+			else:
+				pretty_results.append(formatted_stn)
 		
 		centered_results = self._center_results(pretty_results)
 		print(self._get_logo().format(color=self._color(self.distro), results=centered_results))
