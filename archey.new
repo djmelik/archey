@@ -294,7 +294,7 @@ class Uptime(BaseDisplay):
 		uptime = self.get_uptime()
 		
 		if uptime['day']:
-			value = '{day}{suffix}'.format(day=uptime['day'], suffix='s' if day > 1 else '')
+			value = '{day}{suffix}, '.format(day=uptime['day'], suffix='s' if day > 1 else '')
 		else:
 			value = ''
 		value += '{hours}:{mins:02d}'.format(hours=uptime['hour'], mins=uptime['minute'])
