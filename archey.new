@@ -243,6 +243,20 @@ class BaseDisplay():
 	def __repr__(self):
 		return '<{0}: key={1}, value={2}>'.format(self.__class__.__name__, self.key, self.value)
 	
+	def get_key(self):
+		"""
+		Return the value of the class' key attribute. If classes wish to customise key generation,
+		they should override this method
+		"""
+		return self.key
+	
+	def get_value(self):
+		"""
+		Return the value of the class' value attribute. If classes wish to customise value generation,
+		they should override this method
+		"""
+		return self.value
+	
 	def key_value_pair(self):
 		"""
 		Returns a tuple of the key and value of the current display.
@@ -253,7 +267,7 @@ class BaseDisplay():
 		>>>disp.key_value_pair()
 		('Foo', 'Bar')
 		"""
-		return (self.key, self.value)
+		return (self.get_key(), self.get_value())
 
 #class Hostname:
 #	def __init__(self):
