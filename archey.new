@@ -29,6 +29,7 @@ output = [
  'Shell',
  'Terminal',
  'Packages',
+ 'FileSystem:/home',
  ]
 
 #--------------Exceptions-------------#
@@ -374,7 +375,8 @@ def shell_command(klass):
 	a value to be displayed.
 	"""
 	def get_value(self):
-		cmd = subprocess.Popen(self.command.split(),
+		command = self.command.format(arguments=self.arguments)
+		cmd = subprocess.Popen(command.split(),
 		                       stdout=subprocess.PIPE,
 		                       stdin=subprocess.PIPE,
 		                       stderr=subprocess.PIPE)
@@ -402,7 +404,41 @@ class Packages(BaseDisplay):
 		no_of_packages = len(stdout.split('\n'))
 		
 		return str(no_of_packages)
+
+
+@shell_command
+class FileSystem(BaseDisplay):
+	command = 'df -TPh {arguments[0]}'
 	
+	conversions = {
+	        'k': 2**10,
+	        'M': 2**20,
+	        'G': 2**30,
+	        'T': 2**40,
+	        'P': 2**50,
+	        }
+	
+	def get_key(self):
+		path = self.arguments[0]
+		name = path.split('/')[-1]
+		return '{0} FS'.format(name.capitalize())
+	
+	def process_output(self, stdout, stderr):
+		#Return nothing if pacman returns errors
+		if stderr:
+			return None
+		
+		stdout = stdout.split('\n')
+		line = stdout[1]
+		line = re.sub(r'( +)', r' ', line)
+		line = line.split(' ')
+		
+		persentage = int(line[5][:-1])
+		used = line[3]
+		total = line[2]
+		fstype = line[1]
+		
+		return '{used}/{total} ({fstype})'.format(used=used, total=total, fstype=fstype)
 			
 #class CPU():
 #	def __init__(self):
@@ -434,7 +470,7 @@ def get_display_objects(names):
 			if len(raw_arguments) > 1:
 				raise ArcheyException('Badly formatted argument in "{0}"'.format(raw))
 			else:
-				arguments = [arg for arg in raw_arguments.split(',') if arg]
+				arguments = [arg for arg in raw_arguments[0].split(',') if arg]
 		else:
 			name = raw
 			arguments = []
