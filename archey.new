@@ -134,11 +134,12 @@ class ArcheyException(Exception): pass
 
 #---------------Classes---------------#
 
-class Output():
+class Output(list):
 	results = []
 	
 	def __init__(self):
 		self.distro = self.__detectDistro()
+		super().__init__()
 		
 	def __detectDistro(self):
 		if os.path.exists('/etc/pacman.conf'):
@@ -188,10 +189,10 @@ class Output():
 		return new_results
 		
 	def append(self, display):
-		self.results.append('%s%s: %s%s' % (self._color(1), display.key, self._color('Clear'), display.value))
+		super().append('%s%s: %s%s' % (self._color(1), display.key, self._color('Clear'), display.value))
 		
 	def output(self):
-		results = self._center_results(self.results)
+		results = self._center_results(self)
 		print(self._get_logo().format(color=self._color(self.distro), results=results))
 
 class BaseDisplay():
