@@ -36,6 +36,10 @@ output = [
  'RAM',
  'Disk'
  ]
+
+#--------------Exceptions-------------#
+
+class ArcheyException(Exception): pass
  
 #---------------Dictionaries---------------#
 
@@ -127,25 +131,18 @@ LOGO_DICT = NoDeleteDict({'Arch Linux': '''{color[1]}
 PROCESSES = str(subprocess.check_output(('ps', '-u', getuser(), '-o', 'comm',
 	'--no-headers')), encoding='utf8').rstrip('\n').split('\n')
 
-
-#--------------Exceptions-------------#
-
-class ArcheyException(Exception): pass
+		
+def detect_distro():
+	if os.path.exists('/etc/pacman.conf'):
+		return 'Arch Linux'
+	else:
+		raise ArcheyException("Unsupported distro")
+	
+DISTRO = detect_distro()
 
 #---------------Classes---------------#
 
 class Output(list):
-	results = []
-	
-	def __init__(self):
-		self.distro = self.__detectDistro()
-		super().__init__()
-		
-	def __detectDistro(self):
-		if os.path.exists('/etc/pacman.conf'):
-			return 'Arch Linux'
-		else:
-			sys.exit("Unsupported distro")
 	
 	def _color(self, index):
 		"""
@@ -161,10 +158,10 @@ class Output(list):
 		
 		if isinstance(index, str):
 			return COLOR_DICT[index]
-		return COLOR_DICT[self.distro][index]
+		return COLOR_DICT[DISTRO][index]
 	
 	def _get_logo(self):
-		return LOGO_DICT[self.distro]
+		return LOGO_DICT[DISTRO]
 	
 	def _center_results(self, results, max_length=17):
 		"""
@@ -227,7 +224,7 @@ class Output(list):
 				pretty_results.append(formatted_stn)
 		
 		centered_results = self._center_results(pretty_results)
-		print(self._get_logo().format(color=self._color(self.distro), results=centered_results))
+		print(self._get_logo().format(color=self._color(DISTRO), results=centered_results))
 
 class BaseDisplay():
 	"""
