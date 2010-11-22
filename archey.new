@@ -180,6 +180,35 @@ class Output(list):
 		
 		return new_results
 	
+	def _top_results(self, results, max_length=17):
+		"""
+		Aligns a list of results to the top. Length of output list given via max_length kwarg.
+				
+		>>>out = Output()
+		>>>out._top_results([1])
+		[1, ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
+		>>>out._top_results([1], max_length=3)
+		[1, ' ', ' ']
+		"""
+		out = results
+		out.extend(' ' * (max_length - len(results)+1))
+		return out
+	
+	def _bottom_results(self, results, max_length=17):
+		"""
+		Aligns a list of results to the bottom. Length of output list given via max_length kwarg.
+				
+		>>>out = Output()
+		>>>out._bottom_results([1])
+		[' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 1]
+		>>>out._bottom_results([1], max_length=3)
+		[' ', ' ', 1]
+		"""
+		out = []
+		out.extend(' ' * (max_length - len(results)+1))
+		out.extend(results)
+		return out
+	
 	def _get_results(self):
 		"""
 		Returns a dict of the keys and values of the currently registered display classes.
@@ -196,6 +225,25 @@ class Output(list):
 		{'Foo': 'Bar'}
 		"""
 		return {key:value for key, value in [disp.key_value_pair() for disp in self] if key and value}
+	
+	def align_results(self, results, maxsize=17):
+		alignment_builtins = ['top', 'bottom', 'center', 'custom']
+		
+		try:
+			align = config.results_align
+			if align == None or align not in alignment_builtins:
+				raise Exception()
+			if align == 'top':
+				out = self._top_results(results, max_length=17)
+			elif align == 'bottom':
+				out = self._bottom_results(results, max_length=17)
+			elif align == 'custom':
+				out = config.custom_align(results, max_length=17)
+			else:
+				out = self._center_results(results, max_length=17)
+		except:
+			out = self._center_results(results, max_length=17)
+		return out
 		
 	def output(self):
 		"""
@@ -218,8 +266,9 @@ class Output(list):
 			else:
 				pretty_results.append(formatted_stn)
 		
-		centered_results = self._center_results(pretty_results)
-		print(self._get_logo().format(color=self._color(DISTRO), results=centered_results))
+		aligned_results = self.align_results(pretty_results)
+		
+		print(self._get_logo().format(color=self._color(DISTRO), results=aligned_results))
 
 class BaseDisplay():
 	"""
@@ -452,6 +501,9 @@ class FileSystem(BaseDisplay):
 
 ## TEST ## <<< TEMPORARY 
 def main():
+	global config
+	config = load_config()
+	
 	out = Output()
 	
 	displays = get_display_objects(output)
@@ -483,6 +535,27 @@ def get_display_objects(names):
 				raise ArcheyException('Could not find display class {0} to use'.format(name))
 		
 		yield klass(arguments)
+
+def load_config():
+	"""
+	Imports the config file.
+	"""
+	config_dir = os.getenv('XDG_CONFIG_HOME')
+	sys.path.append(config_dir)
+	try:
+		import archey as config
+	except ImportError:
+		class config():
+			defaults = {}
+			
+			def __getattr__(self, name):
+				if name in self.defaults.keys():
+					return self.defaults[name]
+				else:
+					return None
+	
+	return config
+	
 	
 if __name__ == '__main__':
 	main()
