@@ -460,7 +460,7 @@ class FileSystem(BaseDisplay):
 	
 	def get_key(self):
 		path = self.arguments[0]
-		name = path.split('/')[-1]
+		name = path.split('/')[-1] or 'Root'
 		return '{0} FS'.format(name.capitalize())
 	
 	def process_output(self, stdout, stderr):
