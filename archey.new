@@ -21,16 +21,7 @@ from time import ctime, sleep
 
 #---------------Output---------------#
 
-output = [
- 'User',
- 'Uptime',
- 'WindowManager',
- 'DesktopEnvironment',
- 'Shell',
- 'Terminal',
- 'Packages',
- 'FileSystem:/home',
- ]
+
 
 #--------------Exceptions-------------#
 
@@ -506,16 +497,17 @@ def main():
 	
 	out = Output()
 	
-	displays = get_display_objects(output)
+	displays = get_display_objects()
 	
 	out.extend(displays)
 	out.output()
 	
-def get_display_objects(names):
+def get_display_objects():
 	"""
 	Returns a list of display objects, from the names in the list passed to the
 	function as the first argument.
 	"""
+	names = config.display
 	for raw in names:
 		if ':' in raw:
 			name, *raw_arguments = raw.split(':')
@@ -542,19 +534,34 @@ def load_config():
 	"""
 	config_dir = os.getenv('XDG_CONFIG_HOME')
 	sys.path.append(config_dir)
-	try:
-		import archey as config
-	except ImportError:
-		class config():
-			defaults = {}
-			
-			def __getattr__(self, name):
-				if name in self.defaults.keys():
-					return self.defaults[name]
-				else:
-					return None
 	
-	return config
+	class _config():
+		defaults = {'display':
+	                            ['User',
+	                            'Uptime',
+	                            'WindowManager',
+	                            'DesktopEnvironment',
+	                            'Shell',
+	                            'Terminal',
+	                            'Packages',
+	                            'FileSystem:/home',
+	                            ]
+	        }
+		
+		try:
+			import archey as _config
+		except ImportError:
+			_config = None
+		
+		def __getattr__(self, name):
+			if hasattr(self._config, name):
+				return getattr(self._config, name)
+			elif name in self.defaults.keys():
+				return self.defaults[name]
+			else:
+				return None
+	
+	return _config()
 	
 	
 if __name__ == '__main__':
