@@ -14,7 +14,13 @@
 # See http://www.gnu.org/licenses/gpl.txt for the full license text.
 
 # Import libraries
-import os, sys, subprocess, optparse, re, linecache
+import os
+import sys
+import subprocess
+import optparse
+import re
+import linecache
+import collections
 from optparse import OptionParser
 from getpass import getuser
 from time import ctime, sleep
@@ -215,7 +221,12 @@ class Output(list):
 		>>>out._get_results()
 		{'Foo': 'Bar'}
 		"""
-		return {key:value for key, value in [disp.key_value_pair() for disp in self] if key and value}
+		od = collections.OrderedDict()
+		for key, value in (disp.key_value_pair() for disp in self):
+			if not (key and value):
+				continue
+			od[key] = value
+		return od
 	
 	def align_results(self, results, maxsize=17):
 		alignment_builtins = ['top', 'bottom', 'center', 'custom']
@@ -282,6 +293,14 @@ class BaseDisplay():
 	
 	def __repr__(self):
 		return '<{0}: key={1}, value={2}>'.format(self.__class__.__name__, self.key, self.value)
+	
+	def _color(self, color, bold=False):
+		"""
+		Returns a shell escape code for the color given as a string.
+		"""
+		colors = dict(zip(('BLACK', 'RED', 'GREEN', 'YELLOW', 'BLUE', 'MAGENTA', 'CYAN', 'WHITE'), range(8)))
+		p = colors.get(color.upper(), None)
+		return '\x1b[{0};3{1}m'.format(int(bold), p) if p else '\x1b[0m'
 	
 	def get_key(self):
 		"""
@@ -477,8 +496,14 @@ class FileSystem(BaseDisplay):
 		used = line[3]
 		total = line[2]
 		fstype = line[1]
+		if persentage < (1/3) * 100:
+			color = self._color('green', bold=True)
+		elif persentage < (2/3) * 100:
+			color = self._color('blue', bold=True)
+		else:
+			color = self._color('red', bold=True)
 		
-		return '{used}/{total} ({fstype})'.format(used=used, total=total, fstype=fstype)
+		return '{color}{used}{clear}/{total} ({fstype})'.format(color=color, used=used, clear=self._color('clear'), total=total, fstype=fstype)
 			
 #class CPU():
 #	def __init__(self):
