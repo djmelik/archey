@@ -285,7 +285,7 @@ def disk_display():
  total = p1.splitlines()[-1]
  used = total.split()[3]
  size = total.split()[2]
- usedpercent = float(re.sub("[A-Z]", "", used)) / float(re.sub("[A-Z]", "", size)) * 100
+ usedpercent = float(total.split()[5][:-1])
  if usedpercent <= 33:
   fs = '%s%s %s/ %s' % (greenB, used, clear, size)  
   output ('Disk', fs) 
