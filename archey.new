@@ -14,66 +14,51 @@
 # See http://www.gnu.org/licenses/gpl.txt for the full license text.
 
 # Import libraries
-import os
-import sys
-import subprocess
-import optparse
-import re
-import linecache
-import collections
+import os, sys, subprocess, optparse, re, linecache
+from subprocess import Popen, PIPE
 from optparse import OptionParser
 from getpass import getuser
 from time import ctime, sleep
 
 #---------------Output---------------#
 
-
-
-#--------------Exceptions-------------#
-
-class ArcheyException(Exception): pass
+output = [
+ 'User',
+ 'Hostname',
+ 'Distro',
+ 'Kernel',
+ 'Uptime',
+ 'WindowManager',
+ 'DesktopEnvironment',
+ 'Shell',
+ 'Terminal',
+ 'Packages',
+ 'CPU',
+ 'RAM',
+ 'Disk'
+ ]
  
 #---------------Dictionaries---------------#
 
-class NoDeleteDict(dict):
-	"""
-	This dict silently disables deletions. This is because allthough we will want users to be able to
-	edit these dicts from their config files, we don't want them to muck up somthing important, so we
-	disable deletions to protect them from themselves.
-	
-	>>>dic = NoDeleteDict({'a':1, 'b':2})
-	
-	We can still access items normally:
-	>>>dic['a']
-	1
-	
-	But when we delete items, nothing happens:
-	>>>del dic['b']
-	>>>dic['b']
-	2
-	"""
-	
-	def __delitem__(self, name):
-		return
-
-COLOR_DICT = NoDeleteDict({
+colorDict = {
 	'Arch Linux': ['\x1b[0;34m', '\x1b[1;34m'],
 	'Ubuntu': ['\x1b[0;31m', '\x1b[1;31m', '\x1b[0;33m'],
 	'Debian': ['\x1b[0;31m', '\x1b[1;31m'],
 	'Mint': ['\x1b[0;32m', '\x1b[1;37m'],
 	'Crunchbang': ['\x1b[1;37m'],
 	'Fedora': ['\x1b[0;34m', '\x1b[1;37m'],
-	'Clear': '\x1b[0m'
-	})
+	'Sensors': ['\x1b[0;31m', '\x1b[0;32m', '\x1b[0;33m'], 
+	'Clear': ['\x1b[0m']
+	}
 	
-DE_DICT = NoDeleteDict({
+deDict = {
 	'gnome-session': 'GNOME',
 	'ksmserver': 'KDE',
 	'xfce4-session': 'Xfce',
 	'lxsession': 'LXDE'
-	})
+	}
 
-WM_DICT = NoDeleteDict({
+wmDict = {
 	'awesome': 'Awesome',
 	'beryl': 'Beryl',
 	'blackbox': 'Blackbox',
@@ -96,10 +81,9 @@ WM_DICT = NoDeleteDict({
 	'wmii': 'wmii',
 	'xfwm4': 'Xfwm',
 	'xmonad': 'xmonad'
-	})
+	}
 
-
-LOGO_DICT = NoDeleteDict({'Arch Linux': '''{color[1]}
+logosDict = {'Arch Linux': '''{color[1]}
 {color[1]}               +                {results[0]}
 {color[1]}               #                {results[1]}
 {color[1]}              ###               {results[2]}
@@ -118,476 +102,158 @@ LOGO_DICT = NoDeleteDict({'Arch Linux': '''{color[1]}
 {color[0]}  ;####                 ####;   {results[15]}
 {color[0]}  ##'                     '##   {results[16]} 
 {color[0]} #'                         `#  {results[17]}
-\x1b[0m'''})
+\x1b[0m'''
+}
 
-PROCESSES = str(subprocess.check_output(('ps', '-u', getuser(), '-o', 'comm',
+processes = str(subprocess.check_output(('ps', '-u', getuser(), '-o', 'comm',
 	'--no-headers')), encoding='utf8').rstrip('\n').split('\n')
-
-		
-def detect_distro():
-	if os.path.exists('/etc/pacman.conf'):
-		return 'Arch Linux'
-	else:
-		raise ArcheyException("Unsupported distro")
-	
-DISTRO = detect_distro()
 
 #---------------Classes---------------#
 
-class Output(list):
+class Output:
+	results = []
+	results.extend(['']*(13))
 	
-	def _color(self, index):
-		"""
-		Returns the escape code for either:
-		a) The color scheme of the distro value stored in self.distro
-		or
-		b) The value of the entry in COLOR_DICT for the key passed
+	def __init__(self):
+		self.distro = self.__detectDistro()
 		
-		>>out = Output()
-		>>out._color(1) == COLOR_DICT[out.distro][1]
-		>>out._color(out.distro) == COLOR_DICT[out.distro]
-		"""
-		
-		if isinstance(index, str):
-			return COLOR_DICT[index]
-		return COLOR_DICT[DISTRO][index]
-	
-	def _get_logo(self):
-		return LOGO_DICT[DISTRO]
-	
-	def _center_results(self, results, max_length=17):
-		"""
-		Centers a list of results. Length of desired list can be given via max_length kwarg.
-		
-		>>>out = Output()
-		>>>out._center_results([1])
-		[' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 1, ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
-		>>>out._center_results([1], max_length=3)
-		[' ', 1, ' ']
-		"""
-		
-		length = len(results)
-		if length > max_length:
-			return results[:max_length + 1]
-		
-		center = int(max_length/2)
-		start = int(center - length/2)
-		new_results = list(' ' * max_length)
-		new_results[start:start + length - 1] = results
-		
-		return new_results
-	
-	def _top_results(self, results, max_length=17):
-		"""
-		Aligns a list of results to the top. Length of output list given via max_length kwarg.
-				
-		>>>out = Output()
-		>>>out._top_results([1])
-		[1, ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
-		>>>out._top_results([1], max_length=3)
-		[1, ' ', ' ']
-		"""
-		out = results
-		out.extend(' ' * (max_length - len(results)+1))
-		return out
-	
-	def _bottom_results(self, results, max_length=17):
-		"""
-		Aligns a list of results to the bottom. Length of output list given via max_length kwarg.
-				
-		>>>out = Output()
-		>>>out._bottom_results([1])
-		[' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 1]
-		>>>out._bottom_results([1], max_length=3)
-		[' ', ' ', 1]
-		"""
-		out = []
-		out.extend(' ' * (max_length - len(results)+1))
-		out.extend(results)
-		return out
-	
-	def _get_results(self):
-		"""
-		Returns a dict of the keys and values of the currently registered display classes.
-		NOTE: Will not include any key value pairs where either evaluates to False.
-		
-		>>>out = Output()
-		>>>class TestDisplay():
-		...    key = 'Foo'
-		...    value = 'Bar'
-		...    key_value_pair = lambda self: {self.key: self.value}
-		...
-		>>>out.append(TestDisplay())
-		>>>out._get_results()
-		{'Foo': 'Bar'}
-		"""
-		od = collections.OrderedDict()
-		for key, value in (disp.key_value_pair() for disp in self):
-			if not (key and value):
-				continue
-			od[key] = value
-		return od
-	
-	def align_results(self, results, maxsize=17):
-		alignment_builtins = ['top', 'bottom', 'center', 'custom']
-		
-		try:
-			align = config.results_align
-			if align == None or align not in alignment_builtins:
-				raise Exception()
-			if align == 'top':
-				out = self._top_results(results, max_length=17)
-			elif align == 'bottom':
-				out = self._bottom_results(results, max_length=17)
-			elif align == 'custom':
-				out = config.custom_align(results, max_length=17)
-			else:
-				out = self._center_results(results, max_length=17)
-		except:
-			out = self._center_results(results, max_length=17)
-		return out
+	def __detectDistro(self):
+		if os.path.exists('/etc/pacman.conf'):
+			return 'Arch Linux'
+		else:
+			sys.exit(1)
+			
+	def append(self, display):
+		self.results.append('%s%s: %s%s' % (colorDict[self.distro][1], display.key, colorDict['Clear'][0], display.value))
 		
 	def output(self):
-		"""
-		Outputs the archey logo and information. Reads Display classes from the internal list,
-		and formats them, adding color. The final pretty list is then centered (though other alignments
-		may be added) and printed.
-		"""
-		
-		results = self._get_results()
-		
-		unformatted_stn = '{color}{key}: {clear}{value}{clear}'
-		pretty_results = []
-		for key, value in results.items():
-			try:
-				formatted_stn = unformatted_stn.format(color=self._color(1), key=key, value=value,
-				                                       clear=self._color('Clear'))
-			except:
-				#Fail silently, have a debug option later for noisy fail?
-				pass
-			else:
-				pretty_results.append(formatted_stn)
-		
-		aligned_results = self.align_results(pretty_results)
-		
-		print(self._get_logo().format(color=self._color(DISTRO), results=aligned_results))
+		print(logosDict[self.distro].format(color = colorDict[self.distro], results = self.results))
+			
+class User:
+	def __init__(self):
+		self.key = 'User'
+		self.value = os.getenv('USER')
 
-class BaseDisplay():
-	"""
-	All display classes should inherit this. It defigns several base functions that can be overwritten by any child classes
-	
-	>>>import random
-	>>>class RandomNumber(BaseDisplay):
-	...    key = 'Random Number'
-	...    value = random.random() * 1000
-	...
-	>>>r = RandomNumber()
-	>>>print `r`
-	"""
-	
-	key = None
-	value = None
-	
-	def __init__(self, args=None):
-		self.arguments = args or []
-	
-	def __repr__(self):
-		return '<{0}: key={1}, value={2}>'.format(self.__class__.__name__, self.key, self.value)
-	
-	def _color(self, color, bold=False):
-		"""
-		Returns a shell escape code for the color given as a string.
-		"""
-		colors = dict(zip(('BLACK', 'RED', 'GREEN', 'YELLOW', 'BLUE', 'MAGENTA', 'CYAN', 'WHITE'), range(8)))
-		p = colors.get(color.upper(), None)
-		return '\x1b[{0};3{1}m'.format(int(bold), p) if p else '\x1b[0m'
-	
-	def get_key(self):
-		"""
-		Return the value of the class' key attribute. If classes wish to customise key generation,
-		they should override this method
-		"""
-		return self.key
-	
-	def get_value(self):
-		"""
-		Return the value of the class' value attribute. If classes wish to customise value generation,
-		they should override this method
-		"""
-		return self.value
-	
-	def key_value_pair(self):
-		"""
-		Returns a tuple of the key and value of the current display.
-		
-		>>>disp = BaseDisplay()
-		>>>disp.key = 'Foo'
-		>>>disp.value = 'Bar'
-		>>>disp.key_value_pair()
-		('Foo', 'Bar')
-		"""
-		return (self.get_key(), self.get_value())
-
-#class Hostname:
-#	def __init__(self):
+class Hostname:
+	def __init__(self):
+		hostname = Popen(['uname', '-n'], stdout=PIPE).communicate()[0].decode('Utf-8').rstrip('\n')
+		self.key = 'Hostname'
+		self.value = hostname
 			
-#class Distro:
-#	def __init__(self):
+class Distro:
+	def __init__(self):
+		if os.path.exists('/etc/pacman.conf'):
+			distro =  'Arch Linux'
+		self.key = 'Distro'
+		self.value = distro
 			
-#class Kernel:
-#	def __init__(self):
+class Kernel:
+	def __init__(self):
+		kernel = Popen(['uname', '-r'], stdout=PIPE).communicate()[0].decode('Utf-8').rstrip('\n')
+		self.key = 'Kernel'
+		self.value = kernel
 			
-class Uptime(BaseDisplay):
-	key = 'Uptime'
-	
-	def get_uptime(self):
+class Uptime:		
+	def __init__(self):
 		fuptime = int(open('/proc/uptime').read().split('.')[0])
 		day = int(fuptime / 86400)
 		fuptime = fuptime % 86400
 		hour = int(fuptime / 3600)
 		fuptime = fuptime % 3600
 		minute = int(fuptime / 60)
-		
-		return {'day': day, 'hour': hour, 'minute': minute}
+		uptime = ''
+		if day == 1:
+			uptime += '%d day, ' % day
+		if day > 1:
+			uptime += '%d days, ' % day
+		uptime += '%d:%02d' % (hour, minute)
+		self.key = 'Uptime'
+		self.value = uptime
 	
-	def get_value(self):
-		uptime = self.get_uptime()
-		
-		if uptime['day']:
-			value = '{day}{suffix}, '.format(day=uptime['day'], suffix='s' if day > 1 else '')
-		else:
-			value = ''
-		value += '{hours}:{mins:02d}'.format(hours=uptime['hour'], mins=uptime['minute'])
-		return value
-	
-class WindowManager(BaseDisplay):
-	key = 'Window Manager'
-	
-	def get_value(self):
+class WindowManager:
+	def __init__(self):
 		wm = ''
-		for key in WM_DICT.keys():
-			if key in PROCESSES:
-				wm = WM_DICT[key]
+		for key in wmDict.keys():
+			if key in processes:
+				wm = wmDict[key]
 				break
 					
-		return wm
+		self.key = 'Window Manager'
+		self.value = wm
 			
-class DesktopEnvironment(BaseDisplay):
-	key = 'Desktop Environment'
-	
-	def get_value(self):
+class DesktopEnvironment:
+	def __init__(self):
 		de = ''
-		for key in DE_DICT.keys():
-			if key in PROCESSES:
-				de = DE_DICT[key]
+		for key in deDict.keys():
+			if key in processes:
+				wm = wmDict[key]
 				break
-		return de
-		
-def enviroment_variable(klass):
-	"""
-	Decorate classes with this decorator. Classes decorated with enviroment_variable will
-	have their __init__ function automaticly generated. This makes it very easy to write
-	a class that returns an enviroment variable.
-	
-	>>>@enviroment_variable
-	...class Lang():
-	...    key = 'Language'
-	...    env = 'LANG'
-	...
-	>>>test = Lang()
-	>>>import os
-	>>>assert test.value == os.getenv('LANG')
-	"""
-	
-	def get_value(self):
-		return os.getenv(self.env)
-		
-	if hasattr(klass, 'key') and hasattr(klass, 'env'):
-		klass.get_value = get_value
-	else:
-		raise ArcheyException('Classes decorated with @enviroment_variable must have'
-		                      'key and env attributes')
-	
-	return klass
-
-@enviroment_variable
-class Shell(BaseDisplay):
-	key = 'Shell'
-	env = 'SHELL'
-
-@enviroment_variable	
-class Terminal(BaseDisplay):
-	key = 'Terminal'
-	env = 'TERM'
-
-@enviroment_variable
-class User(BaseDisplay):
-	key = 'User'
-	env = 'USER'
-
-def shell_command(klass):
-	"""
-	A class decorated with @shell_command will be treated as a class that runs a command, and then parses the output.
-	
-	It should have two string members, "command", the command that will be run, and "key", the key for the display.
-	It should also implement one method, process_output, which should take two arguments, stdout, and stderr, and return
-	a value to be displayed.
-	"""
-	def get_value(self):
-		command = self.command.format(arguments=self.arguments)
-		cmd = subprocess.Popen(command.split(),
-		                       stdout=subprocess.PIPE,
-		                       stdin=subprocess.PIPE,
-		                       stderr=subprocess.PIPE)
-		stdout, stderr = cmd.communicate()
-		return self.process_output(stdout.decode('ascii'), stderr.decode('ascii'))
-	
-	if not all(hasattr(klass, name) for name in ('command', 'process_output')):
-		raise ArcheyException("Classes decorated with @shell_command must have "
-			              "a key and command attributes, and the process_output method")
-	else:
-		klass.get_value = get_value
-	
-	return klass
-
-@shell_command
-class Packages(BaseDisplay):
-	key = 'Packman packages'
-	command = 'pacman -Q'
-	
-	def process_output(self, stdout, stderr):
-		#Return nothing if pacman returns errors
-		if stderr:
-			return None
-		
-		no_of_packages = len(stdout.split('\n'))
-		
-		return str(no_of_packages)
-
-
-@shell_command
-class FileSystem(BaseDisplay):
-	command = 'df -TPh {arguments[0]}'
-	
-	conversions = {
-	        'k': 2**10,
-	        'M': 2**20,
-	        'G': 2**30,
-	        'T': 2**40,
-	        'P': 2**50,
-	        }
-	
-	def get_key(self):
-		path = self.arguments[0]
-		name = path.split('/')[-1] or 'Root'
-		return '{0} FS'.format(name.capitalize())
-	
-	def process_output(self, stdout, stderr):
-		#Return nothing if pacman returns errors
-		if stderr:
-			return None
-		
-		stdout = stdout.split('\n')
-		line = stdout[1]
-		line = re.sub(r'( +)', r' ', line)
-		line = line.split(' ')
-		
-		persentage = int(line[5][:-1])
-		used = line[3]
-		total = line[2]
-		fstype = line[1]
-		if persentage < (1/3) * 100:
-			color = self._color('green', bold=True)
-		elif persentage < (2/3) * 100:
-			color = self._color('blue', bold=True)
-		else:
-			color = self._color('red', bold=True)
-		
-		return '{color}{used}{clear}/{total} ({fstype})'.format(color=color, used=used, clear=self._color('clear'), total=total, fstype=fstype)
+					
+		self.key = 'Desktop Environment'
+		self.value = de
 			
-#class CPU():
-#	def __init__(self):
+class Shell:
+	def __init__(self):
+		self.key = 'Shell'
+		self.value = os.getenv('SHELL')
 			
-#class RAM():
-#	def __init__(self):
+class Terminal:
+	def __init__(self):
+		self.key = 'Terminal'
+		self.value = os.getenv('TERM')
 			
-#class Disk():
-#	def __init__(self):
+class Packages:
+	def __init__(self):
+		p1 = Popen(['pacman', '-Q'], stdout=PIPE).communicate()[0].decode("Utf-8")
+		packages = len(p1.rstrip('\n').split('\n'))
+		self.key = 'Packages'
+		self.value = packages
+		
+class CPU:
+    def __init__(self):
+        file = open('/proc/cpuinfo').readlines()
+        cpuinfo = re.sub('  +', ' ', file[4].replace('model name\t: ', '').rstrip('\n'))
+        output ('CPU', cpuinfo) 
 
+class RAM:
+	def __init__(self):
+		raminfo = Popen(['free', '-m'], stdout=PIPE).communicate()[0].decode('Utf-8').split('\n')
+		ram = ''.join(filter(re.compile('M').search, raminfo)).split()
+		used = int(ram[2]) - int(ram[5]) - int(ram[6])
+		usedpercent = ((float(used) / float(ram[1])) * 100)
+		if usedpercent <= 33:
+			ramdisplay = '%s%s MB %s/ %s MB' % (colorDict['Sensors'][2], used, colorDict['Clear'][0], ram[1])
+		if usedpercent > 33 and usedpercent < 67:
+			ramdisplay = '%s%s MB %s/ %s MB' % (colorDict['Sensors'][1], used, colorDict['Clear'][0], ram[1])
+		if usedpercent >= 67:
+			ramdisplay = '%s%s MB %s/ %s MB' % (colorDict['Sensors'][0], used, colorDict['Clear'][0], ram[1])
+		self.key = 'RAM'
+		self.value = ramdisplay
+			
+class Disk:
+    def __init__(self):
+        p1 = Popen(['df', '-Tlh', '--total', '-t', 'ext4', '-t', 'ext3', '-t', 'ext2', '-t', 'reiserfs', '-t', 'jfs', '-t', 'ntfs', '-t', 'fat32', '-t', 'btrfs', '-t', 'fuseblk'], stdout=PIPE).communicate()[0].decode("Utf-8")
+        total = p1.splitlines()[-1]
+        used = total.split()[3]
+        size = total.split()[2]
+        usedpercent = float(total.split()[5][:-1])
+        
+        if usedpercent <= 33:
+            disk = '%s%s %s/ %s' % (colorDict['Sensors'][2], used, colorDict['Clear'][0], size)  
+        if usedpercent > 33 and usedpercent < 67:  
+            disk = '%s%s %s/ %s' % (colorDict['Sensors'][1], used, colorDict['Clear'][0], size)  
+        if usedpercent >= 67:
+            disk = '%s%s %s/ %s' % (colorDict['Sensors'][0], used, colorDict['Clear'][0], size)  
+        self.key = 'Disk'
+        self.value = disk
 
 ## TEST ## <<< TEMPORARY 
-def main():
-	global config
-	config = load_config()
-	
-	out = Output()
-	
-	displays = get_display_objects()
-	
-	out.extend(displays)
-	out.output()
-	
-def get_display_objects():
-	"""
-	Returns a list of display objects, from the names in the list passed to the
-	function as the first argument.
-	"""
-	names = config.display
-	for raw in names:
-		if ':' in raw:
-			name, *raw_arguments = raw.split(':')
-			if len(raw_arguments) > 1:
-				raise ArcheyException('Badly formatted argument in "{0}"'.format(raw))
-			else:
-				arguments = [arg for arg in raw_arguments[0].split(',') if arg]
-		else:
-			name = raw
-			arguments = []
-		try:
-			klass = eval(name)
-		except:
-			try:
-				klass = eval(name.capitalize())
-			except:
-				raise ArcheyException('Could not find display class {0} to use'.format(name))
-		
-		yield klass(arguments)
-
-def load_config():
-	"""
-	Imports the config file.
-	"""
-	config_dir = os.getenv('XDG_CONFIG_HOME')
-	sys.path.append(config_dir)
-	
-	class _config():
-		defaults = {'display':
-	                            ['User',
-	                            'Uptime',
-	                            'WindowManager',
-	                            'DesktopEnvironment',
-	                            'Shell',
-	                            'Terminal',
-	                            'Packages',
-	                            'FileSystem:/home',
-	                            ]
-	        }
-		
-		try:
-			import archey as _config
-		except ImportError:
-			_config = None
-		
-		def __getattr__(self, name):
-			if hasattr(self._config, name):
-				return getattr(self._config, name)
-			elif name in self.defaults.keys():
-				return self.defaults[name]
-			else:
-				return None
-	
-	return _config()
-	
-	
-if __name__ == '__main__':
-	main()
+out = Output()
+out.append(Shell())
+out.append(Packages())
+out.append(Disk())
+out.append(RAM())
+out.append(Distro())
+out.append(WindowManager())
+#out.append(DesktopEnvirornment())
+out.output()
