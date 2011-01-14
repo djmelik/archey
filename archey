@@ -209,9 +209,9 @@ class RAM:
 		used = int(ram[2]) - int(ram[5]) - int(ram[6])
 		usedpercent = ((float(used) / float(ram[1])) * 100)
 		if usedpercent <= 33:
-			ramdisplay = '%s%s MB %s/ %s MB' % (colorDict['Sensors'][2], used, colorDict['Clear'][0], ram[1])
-		if usedpercent > 33 and usedpercent < 67:
 			ramdisplay = '%s%s MB %s/ %s MB' % (colorDict['Sensors'][1], used, colorDict['Clear'][0], ram[1])
+		if usedpercent > 33 and usedpercent < 67:
+			ramdisplay = '%s%s MB %s/ %s MB' % (colorDict['Sensors'][2], used, colorDict['Clear'][0], ram[1])
 		if usedpercent >= 67:
 			ramdisplay = '%s%s MB %s/ %s MB' % (colorDict['Sensors'][0], used, colorDict['Clear'][0], ram[1])
 		self.key = 'RAM'
@@ -226,9 +226,9 @@ class Disk:
         usedpercent = float(total.split()[5][:-1])
         
         if usedpercent <= 33:
-            disk = '%s%s %s/ %s' % (colorDict['Sensors'][2], used, colorDict['Clear'][0], size)  
-        if usedpercent > 33 and usedpercent < 67:  
             disk = '%s%s %s/ %s' % (colorDict['Sensors'][1], used, colorDict['Clear'][0], size)  
+        if usedpercent > 33 and usedpercent < 67:  
+            disk = '%s%s %s/ %s' % (colorDict['Sensors'][2], used, colorDict['Clear'][0], size)  
         if usedpercent >= 67:
             disk = '%s%s %s/ %s' % (colorDict['Sensors'][0], used, colorDict['Clear'][0], size)  
         self.key = 'Disk'
