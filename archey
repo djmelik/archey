@@ -172,7 +172,7 @@ class DesktopEnvironment:
 		de = ''
 		for key in deDict.keys():
 			if key in processes:
-				wm = wmDict[key]
+				de = deDict[key]
 				break
 					
 		self.key = 'Desktop Environment'
