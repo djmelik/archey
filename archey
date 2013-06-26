@@ -51,6 +51,7 @@ wmDict = {
 	'compiz': 'Compiz',
 	'dwm': 'DWM',
 	'enlightenment': 'Enlightenment',
+	'herbstluftwm': 'herbstluftwm',
 	'fluxbox': 'Fluxbox',
 	'fvwm': 'FVWM',
 	'i3': 'i3',
