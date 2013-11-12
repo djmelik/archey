@@ -39,6 +39,7 @@ colorDict = {
 	
 deDict = {
 	'gnome-session': 'GNOME',
+	'mate-session': 'MATE',
 	'ksmserver': 'KDE',
 	'xfce4-session': 'Xfce',
 	'lxsession': 'LXDE'
